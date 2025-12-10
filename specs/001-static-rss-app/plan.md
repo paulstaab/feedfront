@@ -17,7 +17,8 @@ Build a static Next.js (SSG/export) web application that serves as a frontend fo
 **Project Type**: Web application (single Next.js project with static export)  
 **Performance Goals**: Lighthouse p75 ≥90 desktop / p90 ≥80 throttled 3G; TTI <1.5s broadband / <2.5s 3G  
 **Constraints**: JS bundle ≤180KB gzip, CSS ≤60KB gzip, total export ≤30MB, offline-capable shell  
-**Scale/Scope**: Single user per instance, target ≤1,000 feeds/folders, ≤10,000 cached items in memory
+**Scale/Scope**: Single user per instance, target ≤1,000 feeds/folders, ≤10,000 cached items in memory  
+**Unread Count Strategy**: Because the Nextcloud News v1.3 feeds API does not include per-feed unread counts, the client computes them by tallying `unread=true` articles returned by `/items` for each feed, then aggregating folder totals from their child feeds. Overall unread totals are the sum of all feed counts.
 
 ## Constitution Check
 

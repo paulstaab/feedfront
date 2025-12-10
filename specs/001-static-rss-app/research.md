@@ -45,7 +45,7 @@
 
 ## 3. Authentication & Credential Storage
 
-**Question**: How should HTTP Basic credentials be stored securely in the browser?
+**Question**: How should HTTP Basic credentials be stored in the browser?
 
 **Decision**: Default to `sessionStorage` (cleared on tab close). Offer a "Remember this device" checkbox that stores credentials in `localStorage`. Credentials are base64-encoded for the header but not encrypted (browser storage is not a secure vault).
 
@@ -54,7 +54,6 @@
 **Mitigations**:
 - Enforce HTTPS-only hosts (FR-002).
 - Clear credentials on logout.
-- Recommend Nextcloud app passwords (revocable, scoped).
 
 ---
 

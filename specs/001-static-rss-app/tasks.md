@@ -2,162 +2,172 @@
 
 **Input**: `/specs/001-static-rss-app/` design documents (plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md)
 
-**Constitution Evidence**: Every user story includes mandatory tests, UX verification, and performance checks to satisfy Principles I–V. Tasks are organized so each story remains independently implementable and testable.
+**Constitution Evidence**: Every user story carries test, UX, and performance tasks so Principle I–V gates stay enforceable. Tasks follow the mandated checklist format with explicit file paths.
 
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Initialize the Next.js static project, tooling, and CI scaffolding required for all further work.
+**Purpose**: Stand up the Next.js 14 static workspace, tooling, and CI scaffolding required by all later phases.
 
-- [ ] T001 Bootstrap the Next.js 15 App Router project with TypeScript support and required dependencies by updating `package.json`, `tsconfig.json`, and `next.config.js`.
-- [ ] T002 Create the agreed directory structure (`src/app`, `src/components`, `src/hooks`, `src/lib`, `src/styles`, `tests/`) with placeholder files so imports resolve per plan.md.
-- [ ] T003 Wire TailwindCSS + PostCSS (including custom breakpoints) and seed design tokens in `tailwind.config.js`, `postcss.config.js`, and `src/styles/tokens.css`.
-- [ ] T004 [P] Configure ESLint + Prettier + lint scripts (`.eslintrc.cjs`, `.prettierrc`, `package.json scripts`) to enforce Principle I gates.
-- [ ] T005 [P] Add Vitest + Playwright + axe-core tooling by creating `vitest.config.ts`, `playwright.config.ts`, and `tests/setup.ts` per quickstart.md.
-- [ ] T006 [P] Author CI workflows for lint/test/build/Lighthouse in `.github/workflows/ci.yml` ensuring `npm run build && npm run export` executes on every PR.
+- [ ] T001 Configure Node 20 + Next.js 14 static export defaults (output: 'export', trailingSlash, images.unoptimized) in `package.json`, `tsconfig.json`, and `next.config.js`.
+- [ ] T002 Create the directory skeleton (`src/app`, `src/components`, `src/hooks`, `src/lib`, `src/styles`, `src/types`, `tests/`, `public/`) with placeholder exports in `src/app/page.tsx` and `src/app/layout.tsx` so imports resolve per plan.md.
+- [ ] T003 Install Tailwind+PostCSS and seed responsive tokens/breakpoints in `tailwind.config.js`, `postcss.config.js`, `src/styles/tokens.css`, and `src/styles/globals.css`.
+- [ ] T004 [P] Configure ESLint (strict TS rules), Prettier, and npm scripts in `.eslintrc.cjs`, `.prettierrc`, and `package.json` to satisfy Constitution Principle I.
+- [ ] T005 [P] Wire Vitest, Playwright, MSW, axe-core, and coverage gates via `vitest.config.ts`, `playwright.config.ts`, and `tests/setup.ts` with scripts in `package.json`.
+- [ ] T006 [P] Author end-to-end CI (lint → test → typecheck → build → export → Lighthouse) inside `.github/workflows/ci.yml` including artifact uploads for `/out`.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core architecture (types, API client, storage, styling, mocks) needed by every user story.
+**Purpose**: Shared architecture—types, storage, API client, SWR provider, offline shell, and mocks—that every story depends on.
 
-- [ ] T007 Translate the entities from `data-model.md` into `src/types/session.ts`, `src/types/feed.ts`, `src/types/folder.ts`, `src/types/article.ts`, and `src/types/mutation.ts` with exported barrel `src/types/index.ts`.
-- [ ] T008 [P] Implement credential storage + preference helpers per research.md in `src/lib/storage.ts` (session vs. local storage, validation, clearing).
-- [ ] T009 Build the authenticated fetch wrapper with HTTPS enforcement, Basic auth header injection, and error normalization in `src/lib/api/client.ts` (uses contracts/auth.md).
-- [ ] T010 [P] Create typed domain modules `src/lib/api/feeds.ts`, `src/lib/api/items.ts`, and `src/lib/api/folders.ts` that wrap the v1.3 endpoints documented in contracts/.
-- [ ] T011 [P] Configure global SWR settings and provider component in `src/lib/swr/config.tsx`, then consume it from `src/app/layout.tsx` to enable caching everywhere.
-- [ ] T012 [P] Establish global styles + layout shell (`src/app/layout.tsx`, `src/styles/globals.css`) including font loading, color scheme, and base grid per Experience standards.
-- [ ] T013 [P] Set up MSW mocks & handlers for `/feeds`, `/items`, `/folders`, `/version` in `tests/mocks/handlers.ts`, `tests/mocks/browser.ts`, and hook them in `tests/setup.ts`.
-- [ ] T014 [P] Add a minimal service worker (`public/sw.js`) and offline indicator component (`src/components/ui/OfflineBanner.tsx`) that toggles on `navigator.onLine` events.
+- [ ] T007 Translate entities from `data-model.md` into `src/types/session.ts`, `src/types/feed.ts`, `src/types/folder.ts`, `src/types/article.ts`, and `src/types/mutation.ts`, then export them via `src/types/index.ts`.
+- [ ] T008 [P] Implement runtime/env guards enforcing HTTPS hosts and feature flags in `src/lib/config/env.ts`, surfacing actionable copy for invalid URLs (FR-002).
+- [ ] T009 [P] Build credential + preference storage helpers (session vs. local, remember-device, clear) in `src/lib/storage.ts` per research.md requirements.
+- [ ] T010 [P] Create the authenticated fetch client with Basic auth header injection, custom User-Agent, exponential backoff, and error mapping in `src/lib/api/client.ts`.
+- [ ] T011 [P] Add typed domain wrappers for feeds/items/folders in `src/lib/api/feeds.ts`, `src/lib/api/items.ts`, and `src/lib/api/folders.ts` aligned with contracts/.
+- [ ] T012 [P] Implement client-side unread aggregation utilities for feeds/folders in `src/lib/utils/unreadAggregator.ts` consuming `/items` responses (FR-005).
+- [ ] T013 [P] Configure global SWR provider with dedupe intervals, offline gating, a 5-minute in-memory cache TTL per FR-003, and revalidation knobs in `src/lib/swr/provider.tsx`, then compose it in `src/app/layout.tsx`.
+- [ ] T014 [P] Build async boundary, error formatter, and retry hooks in `src/components/ui/AsyncBoundary.tsx` and `src/lib/utils/errorFormatter.ts` to satisfy FR-012.
+- [ ] T015 [P] Set up MSW mocks + fixtures for `/feeds`, `/items`, `/folders`, `/version`, `/items/*` in `tests/mocks/handlers.ts`, `tests/mocks/server.ts`, and `tests/setup.ts`.
+- [ ] T016 [P] Ship the offline shell: register a minimal service worker in `public/sw.js` and surface status via `src/components/ui/OfflineBanner.tsx` (network-less mode requirement).
+- [ ] T017 [P] Compose the global layout shell (`src/app/layout.tsx`) with typography, color tokens, skeleton slots, and skip-link/performance hooks referenced in plan.md.
+- [ ] T018 [P] Add instrumentation + last-sync tracking utilities in `src/lib/metrics/metricsClient.ts` feeding diagnostics, logging budgets, and emitting real-user monitoring events required by SC-001 and SC-002.
 
-**Checkpoint**: Foundation ready—user stories can now be developed/testing in parallel.
+**Checkpoint**: Foundation complete—user stories can run independently atop the shared stack.
 
 ---
 
 ## Phase 3: User Story 1 – View Aggregated Timeline (Priority: P1) 🎯 MVP
 
-**Goal**: Allow users to log in, validate credentials, and view an aggregated unread timeline with infinite scroll and read/unread toggle.
+**Goal**: Let users authenticate, validate credentials, and skim an aggregated unread timeline with pagination, unread/all toggle, lazy media, and backoff-aware errors.
 
-**Independent Test**: From a static export, complete the login wizard with valid credentials, fetch `/feeds` + `/items` (type=3, getRead=false), and confirm the latest batch renders with unread markers and an "All caught up" empty state when appropriate.
+**Independent Test**: From a static export, complete the login wizard, fetch `/feeds` + `/items` (type=3, batchSize=50, getRead=false), and verify unread counts + empty states render without server help.
 
-### Tests (write first, expect to fail)
+### Tests (write first)
 
-- [ ] T015 [P] [US1] Author Vitest contract tests covering default `/items` + `/feeds` fetch params in `tests/unit/lib/items.fetcher.test.ts` using MSW to assert query strings.
-- [ ] T016 [P] [US1] Create Playwright E2E `tests/e2e/us1-login-timeline.spec.ts` that walks the login wizard, toggles Unread/All, and verifies infinite scroll requests (failing before implementation).
+- [ ] T019 [P] [US1] Write Vitest specs for login validation and session persistence in `tests/unit/hooks/useAuth.test.ts`, covering remember-device gating and HTTPS enforcement.
+- [ ] T020 [P] [US1] Add Vitest coverage for `/items` fetch defaults, client-side unread aggregation, and exponential backoff in `tests/unit/lib/items.fetcher.test.ts` using MSW fixtures.
+- [ ] T021 [P] [US1] Create Playwright flow `tests/e2e/us1-login-timeline.spec.ts` that exercises login, Unread↔All toggle, infinite scroll, and offline indicator behavior (fails pre-impl).
 
 ### Experience & Performance Checks
 
-- [ ] T017 [P] [US1] Capture responsive visual snapshots (320/768/1024/1440px) for login + timeline flows in `tests/visual/us1-login-timeline.spec.ts` and store baselines.
-- [ ] T018 [US1] Record Lighthouse + bundle metrics for the MVP timeline in `docs/metrics/us1-timeline.md` (run `npm run build && npx lhci autorun`).
-- [ ] T019 [US1] Validate `npm run build && npm run export` output and document asset sizes + static checks in `docs/releases/us1-export.md`.
+- [ ] T022 [P] [US1] Capture responsive snapshots for onboarding + timeline (320/768/1024/1440px) in `tests/visual/us1-login-timeline.spec.ts` and baseline the layouts.
+- [ ] T023 [US1] Document Lighthouse + bundle metrics for the MVP timeline in `docs/metrics/us1-lighthouse.md` after `npm run build && npx lhci autorun`.
+- [ ] T024 [US1] Record static export evidence (asset sizes, HTML count) in `docs/releases/us1-export.md` after `npm run build && npm run export`.
 
 ### Implementation
 
-- [ ] T020 [P] [US1] Build the multi-step login wizard UI with validation + remember-device toggle in `src/app/login/page.tsx` per FR-001.
-- [ ] T021 [P] [US1] Implement the `useAuth` hook + context in `src/hooks/useAuth.tsx`, invoking `/index.php/apps/news/api/v1-3/feeds` for credential validation and persisting via `storage.ts`.
-- [ ] T022 [P] [US1] Create SWR hooks `src/hooks/useFeeds.ts` and `src/hooks/useItems.ts` that request default parameters and expose pagination helpers.
-- [ ] T023 [P] [US1] Implement timeline UI primitives (ArticleCard, TimelineList, EmptyState, Toggle) in `src/components/timeline/*` with lazy-loaded article bodies.
-- [ ] T024 [US1] Assemble the aggregated timeline route in `src/app/timeline/page.tsx` with Unread/All toggle, infinite scroll (offset pagination), and empty-state messaging.
-- [ ] T025 [US1] Add skeleton/load/error + offline handling around login/timeline flows using `src/components/ui/AsyncBoundary.tsx` and integrate with `OfflineBanner`.
+- [ ] T025 [P] [US1] Implement the multi-step login wizard with URL/credential validation, handshake progress, and remember-device toggle in `src/app/login/page.tsx` (FR-001).
+- [ ] T026 [P] [US1] Build the `useAuth` context + provider in `src/hooks/useAuth.tsx` that pings `/feeds` for validation, encodes Basic auth, and stores credentials only after success.
+- [ ] T027 [P] [US1] Create timeline data hooks (`src/hooks/useItems.ts`, `src/lib/utils/prefetchManager.ts`) handling batch fetch, infinite scroll offsets, 75% prefetch, and offline short-circuiting.
+- [ ] T028 [P] [US1] Develop timeline primitives in `src/components/timeline/ArticleCard.tsx`, `src/components/timeline/TimelineList.tsx`, and `src/components/timeline/EmptyState.tsx` with lazy-loaded body content and collapsed large enclosures.
+- [ ] T029 [P] [US1] Render aggregate unread summaries + badges using `src/components/timeline/UnreadSummary.tsx`, wiring `unreadAggregator` outputs to the UI.
+- [ ] T030 [US1] Compose the timeline route in `src/app/timeline/page.tsx`, wiring Unread/All toggle, infinite scroll, empty state, and offline-friendly guardrails.
+- [ ] T031 [US1] Surface exponential backoff + retry affordances via `src/components/ui/RequestStateToast.tsx`, ensuring FR-012 copy appears during throttling.
 
-**Checkpoint**: US1 independently delivers a working static MVP.
+**Checkpoint**: US1 delivers a static MVP—login plus aggregated timeline with evidence captured.
 
 ---
 
 ## Phase 4: User Story 2 – Organize & Update Read State (Priority: P2)
 
-**Goal**: Let users navigate folders/feeds, filter timelines, and sync read/star state (single + bulk) with optimistic UI and unread counters.
+**Goal**: Provide folder/feed navigation, filtering, view preferences, unread counters, and optimistic read/star mutations (single + bulk, including mark-all) synchronized with Nextcloud.
 
-**Independent Test**: Using an account with multiple folders, switch filters, mark items read/unread/star, and verify API calls (`/items/{id}/read`, `/items/star/multiple`, `/feeds/{id}/read`) plus real-time unread badges without reloads.
+**Independent Test**: With a multi-folder account, switch folder filters, mark items read/unread/star (including bulk), and confirm `/items/*` + `/feeds/{id}/read` calls succeed while unread badges update instantly.
 
 ### Tests (write first)
 
-- [ ] T026 [P] [US2] Add Vitest coverage for the read-state mutation queue + filter helpers in `tests/unit/hooks/useMutations.test.ts` referencing `ReadStateMutation` data model.
-- [ ] T027 [P] [US2] Extend Playwright suite with `tests/e2e/us2-organize-readstate.spec.ts` to exercise folder filtering, mark-as-read, and bulk star actions end-to-end.
+- [ ] T032 [P] [US2] Add Vitest coverage for the read-state mutation queue, throttle logic, and preference persistence in `tests/unit/lib/readStateQueue.test.ts`.
+- [ ] T033 [P] [US2] Extend Playwright coverage via `tests/e2e/us2-organize-readstate.spec.ts` to verify folder switching, bulk actions, and optimistic rollback UX.
 
 ### Experience & Performance Checks
 
-- [ ] T028 [P] [US2] Refresh responsive/visual baselines for sidebar navigation + mutation toasts in `tests/visual/us2-sidebar-actions.spec.ts` and confirm focus order.
-- [ ] T029 [US2] Log Lighthouse/bundle metrics focused on read-state changes in `docs/metrics/us2-sync.md` (ensure budgets stay within Principle V).
-- [ ] T030 [US2] Capture export verification + asset diffs after read-state features in `docs/releases/us2-export.md`.
+- [ ] T034 [P] [US2] Refresh responsive/visual baselines for sidebar virtualization, counters, and bulk action bars in `tests/visual/us2-sidebar.spec.ts`.
+- [ ] T035 [US2] Record Lighthouse + bundle metrics focused on read-state interactions in `docs/metrics/us2-readstate.md`.
+- [ ] T036 [US2] Log export verification results (bundle diffs, static size) after US2 in `docs/releases/us2-export.md`.
 
 ### Implementation
 
-- [ ] T031 [P] [US2] Build sidebar navigation components (FolderTree, FeedList, unread badges) in `src/components/sidebar/*` consuming SWR data.
-- [ ] T032 [P] [US2] Implement filter + view state management in `src/hooks/useTimelineFilters.ts`, syncing with URL/search params per FR-004.
-- [ ] T033 [P] [US2] Implement the optimistic read-state queue (enqueue, retry, rollback) in `src/lib/mutations/readStateQueue.ts` per data-model.md.
-- [ ] T034 [P] [US2] Wire mark read/unread/star API calls + bulk payload builders in `src/lib/api/items.ts` and expose UI batch controls in `src/components/timeline/ActionBar.tsx`.
-- [ ] T035 [US2] Update `src/app/timeline/page.tsx` to react to folder/feed filters, display counter chips, and refresh SWR caches after mutations.
-- [ ] T036 [US2] Add user feedback (toasts, inline errors) for mutation success/failure in `src/components/timeline/BulkActionToast.tsx`.
+- [ ] T037 [P] [US2] Build virtualized folder/feed navigation with unread badges and 1k+ entry support in `src/components/sidebar/FolderTree.tsx` and `src/components/sidebar/FeedList.tsx`.
+- [ ] T038 [P] [US2] Implement filter + view state synchronization (type/id/getRead/oldestFirst) in `src/hooks/useTimelineFilters.ts`, binding to search params per FR-004.
+- [ ] T039 [P] [US2] Implement the optimistic mutation queue with retry/backoff + rollback metadata in `src/lib/mutations/readStateQueue.ts` using `ReadStateMutation`.
+- [ ] T040 [P] [US2] Wire single + bulk item actions (`/items/{id}/read`, `/items/star/multiple`, `/items/unread/multiple`) in `src/lib/api/items.ts` and expose controls via `src/components/timeline/ActionBar.tsx`.
+- [ ] T041 [P] [US2] Support mark-feed/folder-read endpoints (`/feeds/{id}/read`, `/folders/{id}/read`) with optimistic counters in `src/lib/api/feeds.ts` and `src/lib/api/folders.ts` (FR-007).
+- [ ] T042 [P] [US2] Persist timeline view/sort preferences and remember toggles in `src/hooks/usePreferences.ts`, storing lightweight settings per FR-010.
+- [ ] T043 [US2] Integrate filters, preferences, and mutation queue into `src/app/timeline/page.tsx`, including 30s throttled refreshes and SWR cache invalidation when filters change.
+- [ ] T044 [US2] Provide user feedback (toasts, inline errors, retry CTA) for mutation states via `src/components/ui/MutationToast.tsx` to keep FR-012 actionable copy consistent.
 
-**Checkpoint**: US1 + US2 both function independently with synchronized read state.
+**Checkpoint**: US1 + US2 independently deliver timeline + organization flows with synchronized read state.
 
 ---
 
 ## Phase 5: User Story 3 – Manage Subscriptions (Priority: P3)
 
-**Goal**: Enable feed/folder CRUD (add, rename, move, delete) and diagnostics without leaving Feedfront.
+**Goal**: Allow users to add/move/rename/delete feeds and folders, enforce cascade rules, and surface diagnostics data without leaving the static UI.
 
-**Independent Test**: Add a feed, move it between folders, rename/delete folders via the UI, and confirm API calls (`/feeds`, `/feeds/{id}/move`, `/folders/{id}`) plus immediate sidebar/timeline updates.
+**Independent Test**: Perform each CRUD action through the UI, observe `/feeds` + `/folders` mutations succeed, and watch sidebar/timeline reflect changes instantly while diagnostics show current host and sync stats.
 
 ### Tests (write first)
 
-- [ ] T037 [P] [US3] Add Vitest contract tests for feed/folder CRUD wrappers in `tests/unit/lib/subscriptions.test.ts` using MSW fixtures from contracts/feeds.md and folders.md.
-- [ ] T038 [P] [US3] Create Playwright scenario `tests/e2e/us3-manage-subscriptions.spec.ts` covering add/move/delete flows and optimistic updates.
+- [ ] T045 [P] [US3] Write Vitest specs for feed/folder CRUD helpers (POST/PUT/DELETE/move) in `tests/unit/lib/subscriptions.test.ts` referencing contracts/feeds.md and folders.md.
+- [ ] T046 [P] [US3] Create Playwright E2E `tests/e2e/us3-manage-subscriptions.spec.ts` covering add, rename, move, delete, and cascade protection flows.
 
 ### Experience & Performance Checks
 
-- [ ] T039 [P] [US3] Capture visual baselines for subscription modals/drawers across breakpoints in `tests/visual/us3-subscriptions.spec.ts` ensuring WCAG focus order.
-- [ ] T040 [US3] Append Lighthouse + bundle measurements for subscription-heavy pages in `docs/metrics/us3-subscriptions.md`.
-- [ ] T041 [US3] Re-run static export + asset audit documenting results in `docs/releases/us3-export.md`.
+- [ ] T047 [P] [US3] Capture visual baselines for subscription modals/drawers and drag/drop interactions in `tests/visual/us3-subscriptions.spec.ts`.
+- [ ] T048 [US3] Document Lighthouse/bundle metrics post-subscription work in `docs/metrics/us3-subscriptions.md`.
+- [ ] T049 [US3] Log export verification + asset diffs for the final story in `docs/releases/us3-export.md`.
 
 ### Implementation
 
-- [ ] T042 [P] [US3] Implement subscription modals/drawers (`AddFeedModal.tsx`, `RenameFolderDrawer.tsx`, `DeleteConfirmDialog.tsx`) under `src/components/subscription/` with form validation.
-- [ ] T043 [P] [US3] Flesh out feed/folder CRUD helpers in `src/lib/api/feeds.ts` and `src/lib/api/folders.ts`, including cascading safeguards and error mapping.
-- [ ] T044 [P] [US3] Add move/drag-and-drop UI for feeds between folders inside `src/components/sidebar/FeedList.tsx` (keyboard-accessible ordering).
-- [ ] T045 [US3] Introduce a `useSubscriptions` hook in `src/hooks/useSubscriptions.ts` to orchestrate CRUD mutations + SWR cache invalidation.
-- [ ] T046 [US3] Implement the diagnostics/debug drawer (FR-011) in `src/components/debug/DiagnosticsDrawer.tsx` showing host, sync time, and Lighthouse metrics.
+- [ ] T050 [P] [US3] Build feed CRUD surfaces (`AddFeedModal.tsx`, `DeleteFeedDialog.tsx`) under `src/components/subscription/` with validation + success messaging.
+- [ ] T051 [P] [US3] Implement folder CRUD UI (`FolderForm.tsx`, `RenameFolderDrawer.tsx`) within `src/components/subscription/` enforcing cascading safeguards (FR-009).
+- [ ] T052 [P] [US3] Extend API helpers in `src/lib/api/feeds.ts` and `src/lib/api/folders.ts` to cover POST/move/rename/delete endpoints with consistent error mapping (FR-008/FR-009).
+- [ ] T053 [P] [US3] Add drag-and-drop or keyboard move controls for feeds between folders in `src/components/sidebar/FeedList.tsx`, updating ordering + pinned state.
+- [ ] T054 [P] [US3] Introduce `useSubscriptions` orchestration in `src/hooks/useSubscriptions.ts` to sequence CRUD mutations, invalidate SWR caches, and refresh unread counts.
+- [ ] T055 [US3] Implement diagnostics/debug drawer meeting FR-011 in `src/components/debug/DiagnosticsDrawer.tsx`, showing API host, last sync, bundle metrics, and Lighthouse links.
+- [ ] T056 [US3] Provide destructive-action confirmations + cascade warnings via `src/components/subscription/DeleteConfirmDialog.tsx`, halting deletes if feeds remain.
 
-**Checkpoint**: All three stories complete; subscriptions manageable within the static app.
+**Checkpoint**: Subscription management works end-to-end; diagnostics available for operations teams.
 
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-**Purpose**: Final documentation, accessibility, and release-readiness tasks across stories.
+**Purpose**: Final documentation, accessibility, performance, and release readiness applied across the feature.
 
-- [ ] T047 [P] Refresh `specs/001-static-rss-app/quickstart.md` with final login, testing, and deployment steps validated against the implemented UI.
-- [ ] T048 [P] Run axe-core + keyboard accessibility sweeps across all routes and archive reports in `docs/a11y/axe-report.md` per Constitution Principle IV.
-- [ ] T049 Execute full pipeline validation (`npm run lint && npm run test && npm run build && npm run export`) and document release notes in `docs/releases/summary.md`.
+- [ ] T057 [P] Refresh `specs/001-static-rss-app/quickstart.md` with accurate setup, login, MSW, and testing instructions verified against the implemented UI.
+- [ ] T058 [P] Run full axe-core + keyboard accessibility sweeps across login, timeline, sidebar, and subscription flows, saving evidence in `docs/a11y/axe-report.md`.
+- [ ] T059 Execute pipeline validation (`npm run lint && npm run test && npm run build && npm run export && npx lhci autorun`) and archive release notes in `docs/releases/summary.md`.
 
 ---
 
 ## Dependencies & Execution Order
 
-1. **Phase 1 → Phase 2**: Setup must complete before foundational work (tooling and configs required for everything else).
-2. **Phase 2 → User Stories**: All user stories depend on shared types, API client, SWR provider, and mocks from Phase 2.
-3. **User Story Sequencing**: US1 is MVP and unlocks login/timeline; US2 and US3 can start once Phase 2 completes but should respect data dependencies (US2 builds on timeline, US3 on sidebar infrastructure).
-4. **Polish**: Runs after desired user stories ship to consolidate docs, accessibility, and release validation.
+- **Graph**: `Setup (Phase 1) → Foundational (Phase 2) → US1 (Phase 3) → {US2 (Phase 4), US3 (Phase 5)} → Polish (Phase 6)`
+- Phase 1 is prerequisite for tooling, enabling Phase 2 to build shared libs.
+- Phase 2 delivers API client, storage, SWR, offline shell, and mocks that every story consumes; no user story work may start before T007–T018 complete.
+- US1 is the MVP slice; US2 relies on US1’s timeline scaffolding for filters, and US3 depends on the sidebar components + SWR cache behavior established earlier.
+- Polish runs only after all desired user stories land so evidence, accessibility, and release notes reflect the final state.
 
 ---
 
 ## Parallel Execution Examples
 
-- **Within Phase 2**: After T007, tasks T008–T014 touch separate files (storage, API client, SWR, styles, mocks, service worker) and can be split among developers.
-- **US1 Tests**: T015 and T016 are independent (unit vs. E2E) and can be authored concurrently before implementation.
-- **US2 Implementation**: T031 (sidebar UI) and T033 (mutation queue) can progress in parallel, converging at T035 when integrating filters and optimistic updates.
-- **US3 Implementation**: T042 (modals) and T044 (drag-and-drop) target different components and may proceed simultaneously once API helpers (T043) exist.
+- **US1**: T019 (unit tests) and T021 (E2E) can run concurrently; while tests bake, T027 (data hooks) and T028 (timeline UI) progress in parallel before converging in T030.
+- **US2**: T037 (virtualized sidebar) and T039 (mutation queue) are independent; once done, T043 integrates them into the timeline while T044 handles UX feedback separately.
+- **US3**: T050 (feed modals) and T053 (drag-and-drop) touch different components; T052 (API helpers) should finish first, after which both UI tasks can proceed simultaneously.
 
 ---
 
 ## Implementation Strategy
 
-1. **MVP First**: Complete Phases 1–2, then deliver US1 end-to-end (login + timeline). This produces a demo-ready static build satisfying core value.
-2. **Incremental Delivery**: After US1, layer US2 (organization/read state) and US3 (subscriptions) sequentially, ensuring each story passes its tests/UX/perf gates before merging.
-3. **Parallel Teams**: With multiple developers, finish Phase 2 together, then split stories (e.g., one engineer owns US1 final touches while others start US2/US3) to accelerate delivery without violating independence.
-4. **Evidence First**: For every story, land tests (Vitest + Playwright) before implementation, then capture visual/performance evidence prior to closing the story.
+1. **MVP First**: Complete Phases 1–2, then deliver US1 end-to-end (login wizard + aggregated timeline) to unlock demos and early feedback.
+2. **Incremental Delivery**: Layer US2 (organization/read state) and US3 (subscriptions/diagnostics) sequentially, validating each with its dedicated tests, visual baselines, and Lighthouse runs before merging.
+3. **Parallel Staffing**: After Phase 2, one squad can own US1 polish while others start US2/US3 tasks marked [P], minimizing blocking work.
+4. **Evidence-Driven**: Maintain the pattern of writing tests before implementation, capturing visual/performance artifacts immediately after each story, and refusing to progress until independent acceptance criteria are verifiably met.
 
 ---

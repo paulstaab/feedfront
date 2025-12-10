@@ -157,7 +157,7 @@ interface Feed {
   /** Parent folder ID, null for root-level feeds */
   folderId: number | null;
   
-  /** Number of unread articles */
+  /** Number of unread articles (computed client-side from `/items` responses; may be seeded from API if present) */
   unreadCount: number;
   
   /** Sort order within folder (lower = higher) */
