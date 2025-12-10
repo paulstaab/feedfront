@@ -19,11 +19,14 @@ export interface OfflineBannerProps {
  * Hook to track online/offline status.
  */
 export function useOnlineStatus(): boolean {
-  const [isOnline, setIsOnline] = useState<boolean>(
-    typeof navigator !== 'undefined' ? navigator.onLine : true,
-  );
+  // Always start as true during SSR to avoid hydration mismatch,
+  // then sync with actual navigator.onLine in useEffect
+  const [isOnline, setIsOnline] = useState<boolean>(true);
 
   useEffect(() => {
+    // Sync with actual browser state on mount
+    setIsOnline(navigator.onLine);
+
     const handleOnline = () => {
       setIsOnline(true);
     };

@@ -7,7 +7,6 @@ import { useItems } from '@/hooks/useItems';
 import { TimelineList } from '@/components/timeline/TimelineList';
 import { EmptyState } from '@/components/timeline/EmptyState';
 import { UnreadSummary } from '@/components/timeline/UnreadSummary';
-import { OfflineBanner } from '@/components/ui/OfflineBanner';
 
 /**
  * Timeline page content component
@@ -21,28 +20,6 @@ function TimelineContent() {
   // Get filter from URL or default to unread
   const getReadParam = searchParams.get('getRead');
   const showRead = getReadParam === 'true';
-
-  const [isOnline, setIsOnline] = useState(true);
-
-  // Check online status
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-    };
-    const handleOffline = () => {
-      setIsOnline(false);
-    };
-
-    setIsOnline(navigator.onLine);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
 
   // Redirect to login if not authenticated (but wait for initialization to complete)
   useEffect(() => {
@@ -99,7 +76,6 @@ function TimelineContent() {
 
   // Determine empty state type
   const getEmptyStateType = () => {
-    if (!isOnline) return 'offline';
     if (error) return 'error';
     if (!showRead && items.length === 0) return 'no-unread';
     if (items.length === 0) return 'no-items';
@@ -110,9 +86,6 @@ function TimelineContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Offline banner */}
-      {!isOnline && <OfflineBanner />}
-
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
