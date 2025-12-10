@@ -21,7 +21,6 @@
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lhci": "lhci autorun"
   },
   "repository": {
     "type": "git",
@@ -41,7 +40,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
-    "@lhci/cli": "^0.13.0",
     "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
