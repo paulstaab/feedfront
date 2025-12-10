@@ -12,21 +12,21 @@ Generated from `npm run build` after implementing Phase 3 (User Story 1).
 
 ### Route Sizes
 
-| Route | Size | First Load JS |
-|-------|------|---------------|
-| `/` (Home) | 542 B | 91.1 kB |
-| `/_not-found` | 873 B | 88.2 kB |
-| `/login` | 1.84 kB | 92.4 kB |
-| `/timeline` | 8.73 kB | 104 kB |
+| Route         | Size    | First Load JS |
+| ------------- | ------- | ------------- |
+| `/` (Home)    | 542 B   | 91.1 kB       |
+| `/_not-found` | 873 B   | 88.2 kB       |
+| `/login`      | 1.84 kB | 92.4 kB       |
+| `/timeline`   | 8.73 kB | 104 kB        |
 
 ### Shared Chunks
 
-| Chunk | Size |
-|-------|------|
-| `chunks/117-16cdbb7c5a20e90d.js` | 31.8 kB |
-| `chunks/fd9d1056-94566663cb099347.js` | 53.6 kB |
-| Other shared chunks | 1.89 kB |
-| **Total Shared** | **87.4 kB** |
+| Chunk                                 | Size        |
+| ------------------------------------- | ----------- |
+| `chunks/117-16cdbb7c5a20e90d.js`      | 31.8 kB     |
+| `chunks/fd9d1056-94566663cb099347.js` | 53.6 kB     |
+| Other shared chunks                   | 1.89 kB     |
+| **Total Shared**                      | **87.4 kB** |
 
 ---
 
@@ -43,6 +43,7 @@ Generated from `npm run build` after implementing Phase 3 (User Story 1).
 ### Bundle Breakdown
 
 **Timeline route** (8.73 kB route-specific):
+
 - Timeline components (ArticleCard, TimelineList, EmptyState)
 - UnreadSummary component
 - useItems hook with SWR integration
@@ -50,11 +51,13 @@ Generated from `npm run build` after implementing Phase 3 (User Story 1).
 - date-fns for timestamp formatting
 
 **Login route** (1.84 kB route-specific):
+
 - Multi-step wizard UI
 - Form validation logic
 - useAuth hook consumption
 
 **Shared chunks** (87.4 kB total):
+
 - React 18 runtime
 - Next.js App Router framework
 - SWR library (~4 kB)
@@ -75,11 +78,11 @@ Generated from `npm run build` after implementing Phase 3 (User Story 1).
 
 ### Principle V: Performance Guardrails
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| JS bundle (gzip) | ≤ 180 KB | ~35-40 KB | ✅ PASS |
-| CSS bundle (gzip) | ≤ 60 KB | ~10-15 KB | ✅ PASS |
-| Total export size | ≤ 30 MB | TBD (see export evidence) | TBD |
+| Metric            | Target   | Actual                    | Status  |
+| ----------------- | -------- | ------------------------- | ------- |
+| JS bundle (gzip)  | ≤ 180 KB | ~35-40 KB                 | ✅ PASS |
+| CSS bundle (gzip) | ≤ 60 KB  | ~10-15 KB                 | ✅ PASS |
+| Total export size | ≤ 30 MB  | TBD (see export evidence) | TBD     |
 
 ### Notes
 

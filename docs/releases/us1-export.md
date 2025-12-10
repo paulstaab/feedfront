@@ -9,13 +9,13 @@
 
 ## Export Summary
 
-| Metric | Value | Status |
-|--------|-------|--------|
+| Metric                | Value  | Status                    |
+| --------------------- | ------ | ------------------------- |
 | **Total Export Size** | 928 KB | ✅ Well under 30 MB limit |
-| **Total Files** | 30 | |
-| **HTML Pages** | 5 | |
-| **JavaScript Files** | 14 | |
-| **CSS Files** | 1 | |
+| **Total Files**       | 30     |                           |
+| **HTML Pages**        | 5      |                           |
+| **JavaScript Files**  | 14     |                           |
+| **CSS Files**         | 1      |                           |
 
 ---
 
@@ -23,27 +23,27 @@
 
 ### Top 10 Largest Assets
 
-| File | Size | Type |
-|------|------|------|
-| `fd9d1056-94566663cb099347.js` | 172 KB | Shared JS chunk |
-| `framework-f66176bb897dc684.js` | 140 KB | Next.js framework |
-| `117-16cdbb7c5a20e90d.js` | 124 KB | Shared chunk |
-| `main-fc1935174dcf9fc7.js` | 116 KB | Main app bundle |
-| `polyfills-42372ed130431b0a.js` | 112 KB | Browser polyfills |
-| `43fa6fee67b377c8.css` | 20 KB | TailwindCSS |
-| `app/timeline/page-d7b9b528fdd5554a.js` | 20 KB | Timeline route |
-| `582-ba2f79806c1b3cb5.js` | 12 KB | Lazy chunk |
-| `163-8bc994cbc1bb7c33.js` | 12 KB | Lazy chunk |
-| `app/login/page-6ba9e2aed482e935.js` | 8 KB | Login route |
+| File                                    | Size   | Type              |
+| --------------------------------------- | ------ | ----------------- |
+| `fd9d1056-94566663cb099347.js`          | 172 KB | Shared JS chunk   |
+| `framework-f66176bb897dc684.js`         | 140 KB | Next.js framework |
+| `117-16cdbb7c5a20e90d.js`               | 124 KB | Shared chunk      |
+| `main-fc1935174dcf9fc7.js`              | 116 KB | Main app bundle   |
+| `polyfills-42372ed130431b0a.js`         | 112 KB | Browser polyfills |
+| `43fa6fee67b377c8.css`                  | 20 KB  | TailwindCSS       |
+| `app/timeline/page-d7b9b528fdd5554a.js` | 20 KB  | Timeline route    |
+| `582-ba2f79806c1b3cb5.js`               | 12 KB  | Lazy chunk        |
+| `163-8bc994cbc1bb7c33.js`               | 12 KB  | Lazy chunk        |
+| `app/login/page-6ba9e2aed482e935.js`    | 8 KB   | Login route       |
 
 ### HTML Pages
 
-| Page | Size | Path |
-|------|------|------|
-| 404 Error | 11 KB | `/404.html`, `/404/index.html` |
-| Login | 11 KB | `/login/index.html` |
-| Timeline | 9.3 KB | `/timeline/index.html` |
-| Home | 8.5 KB | `/index.html` |
+| Page      | Size   | Path                           |
+| --------- | ------ | ------------------------------ |
+| 404 Error | 11 KB  | `/404.html`, `/404/index.html` |
+| Login     | 11 KB  | `/login/index.html`            |
+| Timeline  | 9.3 KB | `/timeline/index.html`         |
+| Home      | 8.5 KB | `/index.html`                  |
 
 ---
 
@@ -80,29 +80,31 @@ The `/out` directory can be deployed to:
 
 ### Principle II: Static Delivery Mandate
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| No `getServerSideProps` | ✅ PASS | All pages static |
-| No API routes | ✅ PASS | No `/api` directory in export |
-| Client-side data fetching only | ✅ PASS | SWR hooks used |
-| Total size < 30 MB | ✅ PASS | 928 KB << 30 MB |
+| Requirement                    | Status  | Evidence                      |
+| ------------------------------ | ------- | ----------------------------- |
+| No `getServerSideProps`        | ✅ PASS | All pages static              |
+| No API routes                  | ✅ PASS | No `/api` directory in export |
+| Client-side data fetching only | ✅ PASS | SWR hooks used                |
+| Total size < 30 MB             | ✅ PASS | 928 KB << 30 MB               |
 
 ### Performance Budget
 
-| Budget | Target | Actual | Status |
-|--------|--------|--------|--------|
-| JS (uncompressed) | ≤ 600 KB | ~664 KB | ⚠️ Slightly over |
-| JS (gzipped estimate) | ≤ 180 KB | ~200-230 KB | ⚠️ Close to limit |
-| CSS (uncompressed) | ≤ 200 KB | 20 KB | ✅ PASS |
-| CSS (gzipped estimate) | ≤ 60 KB | ~5-7 KB | ✅ PASS |
-| Total export | ≤ 30 MB | 928 KB | ✅ PASS |
+| Budget                 | Target   | Actual      | Status            |
+| ---------------------- | -------- | ----------- | ----------------- |
+| JS (uncompressed)      | ≤ 600 KB | ~664 KB     | ⚠️ Slightly over  |
+| JS (gzipped estimate)  | ≤ 180 KB | ~200-230 KB | ⚠️ Close to limit |
+| CSS (uncompressed)     | ≤ 200 KB | 20 KB       | ✅ PASS           |
+| CSS (gzipped estimate) | ≤ 60 KB  | ~5-7 KB     | ✅ PASS           |
+| Total export           | ≤ 30 MB  | 928 KB      | ✅ PASS           |
 
 **Note**: JS bundle is slightly above target due to:
+
 - Next.js framework (140 KB)
 - Browser polyfills (112 KB)
 - SWR + React runtime
 
 **Optimization opportunities**:
+
 - Consider removing unused polyfills via `browserslist`
 - Evaluate Next.js standalone mode
 - Further tree-shake dependencies
