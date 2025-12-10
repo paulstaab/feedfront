@@ -1,0 +1,8 @@
+/**
+ * API module barrel export.
+ */
+
+export * from './client';
+export * from './feeds';
+export * from './items';
+export * from './folders';

@@ -23,18 +23,18 @@
 
 **Purpose**: Shared architecture—types, storage, API client, SWR provider, offline shell, and mocks—that every story depends on.
 
-- [ ] T007 Translate entities from `data-model.md` into `src/types/session.ts`, `src/types/feed.ts`, `src/types/folder.ts`, `src/types/article.ts`, and `src/types/mutation.ts`, then export them via `src/types/index.ts`.
-- [ ] T008 [P] Implement runtime/env guards enforcing HTTPS hosts and feature flags in `src/lib/config/env.ts`, surfacing actionable copy for invalid URLs (FR-002).
-- [ ] T009 [P] Build credential + preference storage helpers (session vs. local, remember-device, clear) in `src/lib/storage.ts` per research.md requirements.
-- [ ] T010 [P] Create the authenticated fetch client with Basic auth header injection, custom User-Agent, exponential backoff, and error mapping in `src/lib/api/client.ts`.
-- [ ] T011 [P] Add typed domain wrappers for feeds/items/folders in `src/lib/api/feeds.ts`, `src/lib/api/items.ts`, and `src/lib/api/folders.ts` aligned with contracts/.
-- [ ] T012 [P] Implement client-side unread aggregation utilities for feeds/folders in `src/lib/utils/unreadAggregator.ts` consuming `/items` responses (FR-005).
-- [ ] T013 [P] Configure global SWR provider with dedupe intervals, offline gating, a 5-minute in-memory cache TTL per FR-003, and revalidation knobs in `src/lib/swr/provider.tsx`, then compose it in `src/app/layout.tsx`.
-- [ ] T014 [P] Build async boundary, error formatter, and retry hooks in `src/components/ui/AsyncBoundary.tsx` and `src/lib/utils/errorFormatter.ts` to satisfy FR-012.
-- [ ] T015 [P] Set up MSW mocks + fixtures for `/feeds`, `/items`, `/folders`, `/version`, `/items/*` in `tests/mocks/handlers.ts`, `tests/mocks/server.ts`, and `tests/setup.ts`.
-- [ ] T016 [P] Ship the offline shell: register a minimal service worker in `public/sw.js` and surface status via `src/components/ui/OfflineBanner.tsx` (network-less mode requirement).
-- [ ] T017 [P] Compose the global layout shell (`src/app/layout.tsx`) with typography, color tokens, skeleton slots, and skip-link/performance hooks referenced in plan.md.
-- [ ] T018 [P] Add instrumentation + last-sync tracking utilities in `src/lib/metrics/metricsClient.ts` feeding diagnostics, logging budgets, and emitting real-user monitoring events required by SC-001 and SC-002.
+- [X] T007 Translate entities from `data-model.md` into `src/types/session.ts`, `src/types/feed.ts`, `src/types/folder.ts`, `src/types/article.ts`, and `src/types/mutation.ts`, then export them via `src/types/index.ts`.
+- [X] T008 [P] Implement runtime/env guards enforcing HTTPS hosts and feature flags in `src/lib/config/env.ts`, surfacing actionable copy for invalid URLs (FR-002).
+- [X] T009 [P] Build credential + preference storage helpers (session vs. local, remember-device, clear) in `src/lib/storage.ts` per research.md requirements.
+- [X] T010 [P] Create the authenticated fetch client with Basic auth header injection, custom User-Agent, exponential backoff, and error mapping in `src/lib/api/client.ts`.
+- [X] T011 [P] Add typed domain wrappers for feeds/items/folders in `src/lib/api/feeds.ts`, `src/lib/api/items.ts`, and `src/lib/api/folders.ts` aligned with contracts/.
+- [X] T012 [P] Implement client-side unread aggregation utilities for feeds/folders in `src/lib/utils/unreadAggregator.ts` consuming `/items` responses (FR-005).
+- [X] T013 [P] Configure global SWR provider with dedupe intervals, offline gating, a 5-minute in-memory cache TTL per FR-003, and revalidation knobs in `src/lib/swr/provider.tsx`, then compose it in `src/app/layout.tsx`.
+- [X] T014 [P] Build async boundary, error formatter, and retry hooks in `src/components/ui/AsyncBoundary.tsx` and `src/lib/utils/errorFormatter.ts` to satisfy FR-012.
+- [X] T015 [P] Set up MSW mocks + fixtures for `/feeds`, `/items`, `/folders`, `/version`, `/items/*` in `tests/mocks/handlers.ts`, `tests/mocks/server.ts`, and `tests/setup.ts`.
+- [X] T016 [P] Ship the offline shell: register a minimal service worker in `public/sw.js` and surface status via `src/components/ui/OfflineBanner.tsx` (network-less mode requirement).
+- [X] T017 [P] Compose the global layout shell (`src/app/layout.tsx`) with typography, color tokens, skeleton slots, and skip-link/performance hooks referenced in plan.md.
+- [X] T018 [P] Add instrumentation + last-sync tracking utilities in `src/lib/metrics/metricsClient.ts` feeding diagnostics, logging budgets, and emitting real-user monitoring events required by SC-001 and SC-002.
 
 **Checkpoint**: Foundation complete—user stories can run independently atop the shared stack.
 

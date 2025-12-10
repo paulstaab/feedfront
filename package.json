@@ -20,7 +20,7 @@
     "test:watch": "vitest --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:ui": "playwright test --ui"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,8 @@
   "dependencies": {
     "next": "^14.2.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "swr": "^2.3.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
