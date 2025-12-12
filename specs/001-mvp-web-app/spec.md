@@ -45,32 +45,13 @@ As a headless-rss user, I want to log in with my Nextcloud credentials and immed
 
 ---
 
-### User Story 2 - Organize & Update Read State (Priority: P2)
-
-As a user, I want to navigate folders/feeds, filter items, and mark or star articles so that my read state stays consistent with the headless-rss backend.
-
-**Why this priority**: Users expect parity with their feed reader—without proper organization and state sync, the timeline becomes noisy.
-
-**Independent Test**: With an existing account that has multiple folders, verify that switching folders updates the query (`type` + `id`), that mark-read/unread/star actions hit the corresponding v1.3 endpoints, and that unread counters refresh without reloading the page.
-
-**Acceptance Scenarios**:
-
-1. **Given** the user selects a folder, **When** they change the filter to that folder, **Then** the client re-fetches items with `type=1` (folder) and `id=<folder_id>` and refreshes the timeline within 500ms.
-2. **Given** the user taps "Mark as read" on an item, **When** the action completes, **Then** `/index.php/apps/news/api/v1-3/items/{item_id}/read` responds 200 and the UI updates the unread badge locally without a full reload.
-3. **Given** the user selects "Mark all as read" for a feed, **When** the action completes, **Then** `/index.php/apps/news/api/v1-3/feeds/{feed_id}/read` responds 200 and all items from that feed are marked read with the unread count resetting to 0 without a page reload.
-4. **Given** the user selects "Mark all as read" for a folder, **When** the action completes, **Then** `/index.php/apps/news/api/v1-3/folders/{folder_id}/read` responds 200 and all items within that folder are marked read with aggregated unread counts updating across all affected feeds.
-5. **Given** the user stars multiple items, **When** they submit the bulk action, **Then** `/index.php/apps/news/api/v1-3/items/star/multiple` is called with the selected GUID hashes and the UI reflects the starred state even if the network request is slow (optimistic update + rollback on failure).
-
----
-
 [Add more user stories as needed, each with an assigned priority]
 
 ### Edge Cases
 
 - Invalid credentials or revoked Nextcloud app passwords must surface a blocking error with remediation steps without caching failed responses.
-- Feed or folder lists longer than 1,000 entries must virtualize the sidebar and throttle `/feeds` refreshes to avoid layout jank.
 - API throttling or >2s latency should trigger exponential backoff with user-visible retry affordances.
-- Items containing large enclosures (audio/video) should collapse media previews by default to stay within performance and bundle budgets.
+- Items containing large enclosures (audio/video) should collapse media previews by default.
 - Network-less mode should serve cached content via service worker, keep the app shell usable, and show an offline banner; background sync should queue mutation requests until connectivity returns.
 - Service worker updates should prompt the user to reload when a new version is detected without disrupting active reading sessions.
 - Install prompts should respect the user's "dismiss" choice and not re-prompt for at least 7 days unless manually triggered from app settings.
@@ -86,17 +67,15 @@ As a user, I want to navigate folders/feeds, filter items, and mark or star arti
 
 - **FR-001**: On first load present a guided login wizard that asks for the server base URL, validates connectivity via `GET /index.php/apps/news/api/v1-3/version` (before requesting credentials), then asks for Nextcloud username and app password, tests authentication with those credentials, and stores them in session storage by default, with an optional "Remember this device" toggle that moves them to local storage only after a successful handshake.
 - **FR-002**: Authenticate every API call using HTTP Basic auth by sending `Authorization: Basic base64(USER:PASSWORD)` over HTTPS; block execution if the host is non-HTTPS and surface errors when authentication fails.
-- **FR-003**: Fetch feeds via `GET /index.php/apps/news/api/v1-3/feeds` and folders via `GET /index.php/apps/news/api/v1-3/folders` on load and on-demand refresh, caching results in memory for ≤5 minutes.
+- **FR-003**: Fetch feeds via `GET /index.php/apps/news/api/v1-3/feeds` and folders via `GET /index.php/apps/news/api/v1-3/folders` on load and on-demand refresh, caching results in memory.
 - **FR-004**: Render the aggregated timeline using `GET /index.php/apps/news/api/v1-3/items` with support for pagination (`batchSize`, `offset`), filtering by type (`feed`, `folder`, `starred`, `all`), and toggles for `getRead` and `oldestFirst`, defaulting to `getRead=false` while exposing an inline toggle to include read items on demand without a page reload.
 - **FR-005**: Display unread counts per feed and folder by computing them client-side from `/index.php/apps/news/api/v1-3/items` responses (tallying `unread=true` articles per feed and aggregating to folders); treat these client-aggregated values as the source of truth even if the feeds API exposes its own unread counts, and keep counts synchronized after user actions without full reloads.
-- **FR-006**: Allow marking single or multiple items as read/unread/starred by calling the appropriate v1.3 endpoints (`/items/{item_id}/read`, `/items/{item_id}/unread`, `/items/star/multiple`, `/items/unstar/multiple`, `/items/read/multiple`).
-- **FR-007**: Allow marking feeds or folders entirely read via `/feeds/{feed_id}/read` and `/folders/{folder_id}/read` with optimistic UI updates.
-- **FR-008**: Persist lightweight client preferences (view mode, sort order) in local storage without storing feed content to respect privacy expectations.
-- **FR-009**: Provide graceful error handling for HTTP 4xx/5xx responses with actionable copy and retry controls; errors must not leave the UI in an indeterminate state.
-- **FR-011**: Register a service worker that implements a cache-first strategy for static assets (JS, CSS, fonts, icons) and a network-first with cache fallback strategy for API responses, storing up to 50 articles and their media for offline access.
-- **FR-012**: Provide a web app manifest (`manifest.json`) with app name, icons (192x192, 512x512), theme colors, display mode (`standalone`), and start URL to enable installation on mobile and desktop platforms.
-- **FR-013**: Display an install prompt when the PWA install criteria are met (HTTPS, manifest, service worker) and allow users to add the app to their home screen or desktop; honor user dismissals and provide a manual install option in settings.
-- **FR-014**: Queue mutation requests (mark read, star, move) in IndexedDB when offline and replay them via background sync when connectivity returns, with conflict resolution that defers to server state on mismatch.
+- **FR-006**: Persist lightweight client preferences (view mode, sort order) in local storage without storing feed content to respect privacy expectations.
+- **FR-007**: Provide graceful error handling for HTTP 4xx/5xx responses with actionable copy and retry controls; errors must not leave the UI in an indeterminate state.
+- **FR-008**: Register a service worker that implements a cache-first strategy for static assets (JS, CSS, fonts, icons) and a network-first with cache fallback strategy for API responses, storing up to 50 articles and their media for offline access.
+- **FR-009**: Provide a web app manifest (`manifest.json`) with app name, icons (192x192, 512x512), theme colors, display mode (`standalone`), and start URL to enable installation on mobile and desktop platforms.
+- **FR-010**: Display an install prompt when the PWA install criteria are met (HTTPS, manifest, service worker) and allow users to add the app to their home screen or desktop; honor user dismissals and provide a manual install option in settings.
+- **FR-011**: Queue mutation requests in IndexedDB when offline and replay them via background sync when connectivity returns, with conflict resolution that defers to server state on mismatch.
 
 ### Key Entities *(include if feature involves data)*
 

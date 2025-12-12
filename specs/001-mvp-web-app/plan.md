@@ -5,7 +5,7 @@
 
 ## Summary
 
-Build a static Next.js (SSG/export) web application that serves as a frontend for headless-rss. On first load the app displays a login wizard; after authentication it fetches feeds, folders, and items via the Nextcloud v1.3 REST API and renders an aggregated, chronological timeline with read/star/subscription management capabilities—all without runtime server dependencies.
+Build a static Next.js (SSG/export) progressive web app that serves as a frontend for headless-rss. On first load the app displays a login wizard; after authentication it fetches feeds, folders, and items via the Nextcloud v1.3 REST API and renders an aggregated, chronological timeline—all without runtime server dependencies. Feed and folder management are deferred to future releases.
 
 ## Technical Context
 
@@ -14,8 +14,8 @@ Build a static Next.js (SSG/export) web application that serves as a frontend fo
 **Storage**: Browser session/local storage only (no backend DB)  
 **Testing**: Vitest (unit), Playwright (integration + visual regression), axe-core (accessibility)  
 **Target Platform**: Modern browsers (Chrome/Firefox/Safari latest 2 versions), static CDN deployment  
-**Project Type**: Web application (single Next.js project with static export)  
-**Constraints**: JS bundle ≤180KB gzip, CSS ≤60KB gzip, total export ≤30MB, offline-capable shell  
+**Project Type**: Progressive web app (single Next.js project with static export)  
+**Constraints**: Offline-capable shell with service worker  
 **Scale/Scope**: Single user per instance, target ≤1,000 feeds/folders, ≤10,000 cached items in memory  
 **Unread Count Strategy**: Because the Nextcloud News v1.3 feeds API does not include per-feed unread counts, the client computes them by tallying `unread=true` articles returned by `/items` for each feed, then aggregating folder totals from their child feeds. Overall unread totals are the sum of all feed counts.
 
@@ -24,10 +24,9 @@ Build a static Next.js (SSG/export) web application that serves as a frontend fo
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 1. **Code Quality Discipline** — Use ESLint (strict TypeScript rules), Prettier, and `tsc --noEmit` in CI. Keep each PR to one user story; inline JSDoc for non-trivial helpers. Dead code removal enforced via `eslint-plugin-unused-imports`.
-2. **Static Delivery Mandate** — `next build && next export` produces `/out` with no `getServerSideProps`; all data fetched client-side via SWR after user provides credentials. No custom API routes; headless-rss endpoints are the only external compute.
-3. **Test Evidence First** — Write failing Vitest unit tests for API client, auth helpers, and state reducers before implementation. Write Playwright E2E for login wizard, timeline load, mark-read, and subscription CRUD. Coverage gate: ≥90% of new lines via `vitest --coverage`.
+2. **Static Delivery Mandate** — `next build && next export` produces `/out` with no `getServerSideProps`; all data fetched client-side via SWR after user provides credentials. No custom API routes; headless-rss endpoints are the only external compute. Service worker registered for offline capability.
+3. **Automatic Tests** — Write failing Vitest unit tests for API client, auth helpers, and state reducers before implementation. Write Playwright E2E for login wizard and timeline load. Coverage gate: ≥90% of new lines via `vitest --coverage`.
 4. **Experience Consistency** — Define tokens in `src/styles/tokens.css` (colors, spacing 4/8/16/24/32px, type scale). Use axe-core in Playwright to assert 0 critical violations. Percy (or Playwright screenshots) capture 320/768/1024/1440px breakpoints for onboarding, timeline, empty state, and modals.
-5. **Performance Guardrails** — Measure baseline bundle with `next build` output; target delta ≤180KB JS gzip. Lazy-load article body on intersection; prefetch next batch at 75% scroll.
 
 ## Project Structure
 
@@ -97,13 +96,11 @@ next.config.js             # output: 'export'
 
 1. **Code Quality Discipline** ✅ — `data-model.md` defines TypeScript interfaces with validation rules; `contracts/` documents all API shapes. ESLint + Prettier enforced per plan. No dead code anticipated; single-concern PRs planned per user story.
 
-2. **Static Delivery Mandate** ✅ — `research.md` confirms Next.js 14 `output: 'export'` produces immutable `/out` directory. All data fetching client-side via SWR. No `getServerSideProps`, no API routes, no middleware. `quickstart.md` documents build command.
+2. **Static Delivery Mandate** ✅ — `research.md` confirms Next.js 14 `output: 'export'` produces immutable `/out` directory. All data fetching client-side via SWR. No `getServerSideProps`, no API routes, no middleware. Service worker implemented for offline capability. `quickstart.md` documents build command.
 
-3. **Test Evidence First** ✅ — `research.md` §7 specifies Vitest + Playwright toolchain. `quickstart.md` includes test command patterns and MSW mock setup. Coverage threshold set at 90%. E2E tests outlined for login wizard, timeline, mark-read flows.
+3. **Automatic Tests** ✅ — `research.md` §7 specifies Vitest + Playwright toolchain. `quickstart.md` includes test command patterns and MSW mock setup. Coverage threshold set at 90%. E2E tests outlined for login wizard, timeline, mark-read flows.
 
 4. **Experience Consistency** ✅ — `research.md` §6 specifies TailwindCSS with custom breakpoints (xs/sm/md/lg). Responsive behavior documented in spec.md. axe-core integration confirmed via Playwright. Design tokens path established (`src/styles/tokens.css`).
-
-5. **Performance Guardrails** ✅ — `research.md` §8 specifies bundle analysis in CI. Target budgets documented (JS ≤180KB, CSS ≤60KB, TTI <1.5s). Lazy-loading and prefetch strategies defined.
 
 **Gate Status**: PASS — All constitution principles satisfied in design artifacts.
 
