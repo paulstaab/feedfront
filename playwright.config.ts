@@ -32,6 +32,8 @@ export default defineConfig({
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      // WebKit has parallelism issues with route mocking, run serially
+      fullyParallel: false,
     },
   ],
   webServer: {

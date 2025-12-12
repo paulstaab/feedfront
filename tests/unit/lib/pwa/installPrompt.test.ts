@@ -6,6 +6,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  */
 describe('PWA Install Prompt', () => {
   beforeEach(() => {
+    // Reset modules to clear module-level state (capturedPromptEvent)
+    vi.resetModules();
     // Clear localStorage before each test
     localStorage.clear();
     // Reset timers

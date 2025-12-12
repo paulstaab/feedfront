@@ -45,8 +45,10 @@ test.describe('Accessibility Compliance', () => {
       });
     });
 
-    // Clear storage before each test
+    // Clear storage before each test - navigate and wait for redirect to complete
     await page.goto('/');
+    await page.waitForURL(/\/login\//);
+    await page.waitForLoadState('domcontentloaded');
     await page.evaluate(() => {
       sessionStorage.clear();
       localStorage.clear();
@@ -54,7 +56,7 @@ test.describe('Accessibility Compliance', () => {
   });
 
   test('login page should be accessible', async ({ page, makeAxeBuilder }) => {
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.waitForLoadState('networkidle');
 
     const accessibilityScanResults = await makeAxeBuilder()
@@ -65,18 +67,16 @@ test.describe('Accessibility Compliance', () => {
   });
 
   test('login page should have proper focus management', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.waitForLoadState('networkidle');
 
     // Tab through the form
     await page.keyboard.press('Tab');
 
     // First focusable element should be skip link or first form input
-    const firstFocused = await page.evaluate(
-      () =>
-        document.activeElement?.getAttribute('id') ?? document.activeElement?.getAttribute('name'),
-    );
-    expect(firstFocused).toBeTruthy();
+    // Verify that focus moved to an interactive element
+    const focusedTagName = await page.evaluate(() => document.activeElement?.tagName);
+    expect(['A', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT']).toContain(focusedTagName);
 
     // Should be able to navigate through all interactive elements
     const interactiveElements = await page.$$(
@@ -87,7 +87,7 @@ test.describe('Accessibility Compliance', () => {
 
   test('timeline page should be accessible (empty state)', async ({ page, makeAxeBuilder }) => {
     // Login first
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
     await page.getByRole('button', { name: /continue|next/i }).click();
     await page.waitForTimeout(500);
@@ -141,7 +141,7 @@ test.describe('Accessibility Compliance', () => {
   });
 
   test('keyboard navigation should work throughout app', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.waitForLoadState('networkidle');
 
     // Test Tab navigation
@@ -164,7 +164,7 @@ test.describe('Accessibility Compliance', () => {
   });
 
   test('skip link should be functional', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.waitForLoadState('networkidle');
 
     // Tab to skip link (should be first focusable)
@@ -200,7 +200,7 @@ test.describe('Accessibility Compliance', () => {
   });
 
   test('forms should have proper labels', async ({ page, makeAxeBuilder }) => {
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.waitForLoadState('networkidle');
 
     const accessibilityScanResults = await makeAxeBuilder()
@@ -222,7 +222,7 @@ test.describe('Accessibility Compliance', () => {
   });
 
   test('interactive elements should have visible focus indicators', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login/');
     await page.waitForLoadState('networkidle');
 
     // Get first interactive element

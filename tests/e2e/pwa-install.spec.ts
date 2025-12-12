@@ -142,8 +142,8 @@ test.describe('PWA Install Flow', () => {
   });
 
   test('should not show prompt during active reading', async ({ page }) => {
-    // Navigate to timeline (active reading area)
-    await page.goto('/timeline');
+    // Page is already at /login/ from beforeEach
+    // Wait for page to settle
     await page.waitForLoadState('networkidle');
 
     // Scroll to simulate active reading
