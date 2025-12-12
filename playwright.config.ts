@@ -28,6 +28,8 @@ export default defineConfig({
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      // Firefox can have timing issues with route mocking in parallel
+      fullyParallel: false,
     },
     {
       name: 'webkit',
