@@ -2,6 +2,8 @@
 
 A static webapp frontend for headless-rss
 
+> **✨ Vibe-coded with [spec-kit](https://github.com/github/spec-kit)** — This entire application was built using AI-driven specification-first development, from requirements through implementation.
+
 ## Development Setup
 
 ### Prerequisites

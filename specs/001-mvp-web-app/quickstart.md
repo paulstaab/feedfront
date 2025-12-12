@@ -1,7 +1,8 @@
 # Quickstart: Feedfront Development
 
-**Feature**: 001-static-rss-app  
-**Date**: 2025-12-10
+**Feature**: 001-mvp-web-app  
+**Date**: 2025-12-12  
+**Last Updated**: Phase 6 completion
 
 This guide helps developers get started with the Feedfront static RSS reader project.
 
@@ -12,7 +13,7 @@ This guide helps developers get started with the Feedfront static RSS reader pro
 - **Node.js**: 20.x LTS or later
 - **npm**: 10.x or later
 - **Git**: For version control
-- **headless-rss**: Running instance for integration testing (optional)
+- **Nextcloud News API**: Running instance for production use (optional for development - MSW mocks provided)
 
 ---
 
@@ -22,11 +23,8 @@ This guide helps developers get started with the Feedfront static RSS reader pro
 
 ```bash
 # Clone the repository
-git clone <repository-url> feedfront
+git clone https://github.com/paulstaab/feedfront.git
 cd feedfront
-
-# Switch to feature branch
-git checkout 001-static-rss-app
 
 # Install dependencies
 npm install
@@ -82,14 +80,16 @@ feedfront/
 
 ### 3. Environment Setup
 
-Create `.env.local` for development:
+No environment variables are required for development. The app uses client-side configuration where users enter their server URL during the login wizard.
+
+For production deployment, you may optionally configure:
 
 ```bash
-# Optional: Default API URL for development
-NEXT_PUBLIC_DEFAULT_API_URL=http://localhost:8080
+# Optional: Default server URL pre-filled in login
+NEXT_PUBLIC_DEFAULT_SERVER_URL=https://your-nextcloud.example.com
 
-# Optional: Enable debug mode
-NEXT_PUBLIC_DEBUG=true
+# Optional: Feature flags (future use)
+NEXT_PUBLIC_ENABLE_BETA_FEATURES=false
 ```
 
 ---
@@ -211,66 +211,37 @@ export default defineConfig({
 
 ## API Mocking with MSW
 
-### Mock Setup (tests/mocks/handlers.ts)
+MSW (Mock Service Worker) is used for both development and testing. The mock handlers are located in `tests/mocks/handlers.ts`.
 
-```typescript
-import { http, HttpResponse } from 'msw';
+### Mock Setup
 
-const BASE = '/index.php/apps/news/api/v1-3';
+The project includes comprehensive mocks for all Nextcloud News API v1.3 endpoints:
 
-export const handlers = [
-  // Version check (auth validation)
-  http.get(`${BASE}/version`, () => {
-    return HttpResponse.json({ version: '1.3' });
-  }),
-  
-  // Get feeds
-  http.get(`${BASE}/feeds`, () => {
-    return HttpResponse.json({
-      feeds: [
-        { id: 1, title: 'Example Feed', url: 'https://example.com/feed', folderId: null }
-      ]
-    });
-  }),
-  
-  // Get items
-  http.get(`${BASE}/items`, ({ request }) => {
-    const url = new URL(request.url);
-    const getRead = url.searchParams.get('getRead') === 'true';
-    
-    return HttpResponse.json({
-      items: [
-        {
-          id: 100,
-          title: 'Test Article',
-          body: '<p>Test content</p>',
-          feedId: 1,
-          unread: true,
-          starred: false,
-          pubDate: Math.floor(Date.now() / 1000),
-          lastModified: Math.floor(Date.now() / 1000),
-          url: 'https://example.com/article',
-          guid: 'test-guid',
-          guidHash: 'test-hash'
-        }
-      ]
-    });
-  }),
-  
-  // Mark item read
-  http.post(`${BASE}/items/:itemId/read`, () => {
-    return HttpResponse.json({});
-  })
-];
-```
+- `GET /version` - Server version check (no auth required)
+- `GET /feeds` - List all feeds
+- `GET /items` - Get articles with filtering (type, batchSize, offset, getRead)
+- `PUT /items/:id/read` - Mark article as read
+- `PUT /items/:id/unread` - Mark article as unread
+- `PUT /items/read/multiple` - Batch mark as read
+- `GET /folders` - List all folders
 
-### Browser Integration (tests/mocks/browser.ts)
+### Valid Test Credentials
 
-```typescript
-import { setupWorker } from 'msw/browser';
-import { handlers } from './handlers';
+The MSW mocks expect these credentials:
+- **Username**: `testuser`
+- **Password**: `testpass`
+- **Server URL**: `https://rss.example.com` (or `https://nextcloud.example.com`)
 
-export const worker = setupWorker(...handlers);
+### Running with Mocks
+
+E2E tests automatically use MSW mocks via Playwright's routing. For manual testing:
+
+```bash
+# E2E tests with mocks
+npm run test:e2e
+
+# Unit tests with mocks (MSW node integration)
+npm run test
 ```
 
 ---
@@ -280,30 +251,39 @@ export const worker = setupWorker(...handlers);
 ### Unit Test Example
 
 ```typescript
-// tests/unit/hooks/useAuth.test.ts
-import { renderHook, act } from '@testing-library/react';
-import { useAuth } from '@/hooks/useAuth';
+// tests/unit/lib/api/version.test.ts
+import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { getVersion } from '@/lib/api/version';
+import { NetworkError, ApiError } from '@/lib/api/client';
 
-describe('useAuth', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    sessionStorage.clear();
+const server = setupServer();
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+describe('getVersion', () => {
+  it('should return version info on success', async () => {
+    server.use(
+      http.get('https://test.example.com/index.php/apps/news/api/v1-3/version', () => {
+        return HttpResponse.json({ version: '1.3' });
+      }),
+    );
+
+    const result = await getVersion('https://test.example.com');
+    expect(result.version).toBe('1.3');
   });
 
-  it('starts unauthenticated', () => {
-    const { result } = renderHook(() => useAuth());
-    expect(result.current.isAuthenticated).toBe(false);
-  });
+  it('should throw NetworkError on connection failure', async () => {
+    server.use(
+      http.get('https://unreachable.invalid/index.php/apps/news/api/v1-3/version', () => {
+        return HttpResponse.error();
+      }),
+    );
 
-  it('stores credentials on login', async () => {
-    const { result } = renderHook(() => useAuth());
-    
-    await act(async () => {
-      await result.current.login('https://test.com', 'user', 'pass');
-    });
-    
-    expect(result.current.isAuthenticated).toBe(true);
-    expect(sessionStorage.getItem('feedfront:session')).toBeTruthy();
+    await expect(getVersion('https://unreachable.invalid')).rejects.toThrow(NetworkError);
   });
 });
 ```
@@ -311,25 +291,37 @@ describe('useAuth', () => {
 ### E2E Test Example
 
 ```typescript
-// tests/e2e/login.spec.ts
+// tests/e2e/us1-login-timeline.spec.ts
 import { test, expect } from '@playwright/test';
 
 test.describe('Login Wizard', () => {
-  test('completes login flow', async ({ page }) => {
+  test('should validate server connectivity before showing credentials', async ({ page }) => {
     await page.goto('/login');
-    
-    // Step 1: Enter URL
-    await page.fill('[data-testid="server-url"]', 'https://test.example.com');
-    await page.click('[data-testid="next-button"]');
-    
-    // Step 2: Enter credentials
-    await page.fill('[data-testid="username"]', 'testuser');
-    await page.fill('[data-testid="password"]', 'testpass');
-    await page.click('[data-testid="connect-button"]');
-    
+
+    // Enter valid HTTPS URL
+    await page.getByLabel(/server url/i).fill('https://rss.example.com');
+    await page.getByRole('button', { name: /continue|next/i }).click();
+
+    // Should advance to credentials step after connectivity check
+    await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByLabel(/password/i)).toBeVisible();
+  });
+
+  test('should complete full login flow', async ({ page }) => {
+    await page.goto('/login');
+
+    // Step 1: Server URL
+    await page.getByLabel(/server url/i).fill('https://rss.example.com');
+    await page.getByRole('button', { name: /continue/i }).click();
+
+    // Step 2: Credentials
+    await page.getByLabel(/username/i).fill('testuser');
+    await page.getByLabel(/password/i).fill('testpass');
+    await page.getByRole('button', { name: /connect|sign in/i }).click();
+
     // Should redirect to timeline
-    await expect(page).toHaveURL('/');
-    await expect(page.locator('[data-testid="timeline"]')).toBeVisible();
+    await expect(page).toHaveURL('/timeline');
+    await expect(page.getByText(/your timeline|unread|articles/i)).toBeVisible();
   });
 });
 ```
@@ -356,28 +348,60 @@ Target: JS < 180KB gzip, CSS < 60KB gzip
 
 ### Static Host Deployment
 
-The `out/` directory can be deployed to any static host:
+The `out/` directory (generated by `npm run build`) can be deployed to any static host:
 
 ```bash
 # Build static export
 npm run build
 
-# Deploy to Vercel
-vercel deploy out/
+# The 'out/' directory contains the complete static site
+# Deploy it to your preferred static host
+```
 
-# Deploy to Netlify
-netlify deploy --prod --dir=out
+**Supported Platforms:**
+- **Vercel**: Automatic deployment from Git (supports Next.js export)
+- **Netlify**: Drag & drop `out/` folder or connect Git repository
+- **GitHub Pages**: Upload `out/` contents to gh-pages branch
+- **AWS S3 + CloudFront**: Upload `out/` to S3 bucket
+- **Any static web server**: nginx, Apache, Caddy, etc.
 
-# Deploy to GitHub Pages (via gh-pages)
-npm run deploy
+### CORS Configuration Required
+
+Since Feedfront makes client-side API calls to your Nextcloud News server, you must configure CORS headers on your server:
+
+```apache
+# Apache .htaccess or httpd.conf
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Authorization, Content-Type"
+```
+
+```nginx
+# nginx configuration
+add_header 'Access-Control-Allow-Origin' '*';
+add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';
+add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type';
 ```
 
 ### Docker (Optional)
 
 ```dockerfile
 FROM nginx:alpine
+
+# Copy static build
 COPY out/ /usr/share/nginx/html/
+
+# Add nginx configuration for SPA routing
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ---
@@ -386,11 +410,28 @@ EXPOSE 80
 
 ### CORS Issues
 
-If API requests fail with CORS errors:
+The most common issue is CORS errors when connecting to your Nextcloud News server. Error messages include:
+- "Network error" or "Unable to validate server"
+- "CORS policy: No 'Access-Control-Allow-Origin' header is present"
 
-1. Ensure headless-rss has CORS headers configured
-2. Check that `Access-Control-Allow-Origin` includes your domain
-3. For local dev, use a proxy or configure `rewrites` in next.config.js
+**Solutions:**
+1. Configure CORS headers on your Nextcloud/Apache/nginx server (see Deployment section)
+2. Use a CORS proxy for testing (not recommended for production)
+3. Ensure your server URL uses HTTPS (HTTP connections will be rejected)
+
+### Login Issues
+
+**"Server URL must use HTTPS"**
+- Feedfront requires HTTPS for security. HTTP URLs are rejected.
+- For local testing, use `https://localhost` with a self-signed certificate or use the test server URL `https://rss.example.com` with MSW mocks.
+
+**"Server not found or invalid API endpoint"**
+- The `/version` endpoint returned 404. Verify your Nextcloud News app is installed and accessible.
+- Check that the URL format is correct: `https://your-server.com` (without trailing path)
+
+**"Invalid credentials"**
+- Verify your username and password are correct in Nextcloud
+- Check that your Nextcloud user has access to the News app
 
 ### Static Export Limitations
 
@@ -398,24 +439,73 @@ These features are **not available** in static export mode:
 - `getServerSideProps`
 - API routes (`/api/*`)
 - Middleware
-- `revalidate` in `getStaticProps`
+- ISR (Incremental Static Regeneration)
 
-All data fetching must happen client-side.
+All data fetching happens client-side after user authentication.
 
 ### Build Errors
 
 ```bash
-# Clear cache and rebuild
+# Clear all caches and rebuild
 rm -rf .next out node_modules/.cache
+npm run build
+
+# If that doesn't work, clean install
+rm -rf node_modules package-lock.json
+npm install
 npm run build
 ```
 
+### PWA Installation Issues
+
+**Install prompt doesn't appear:**
+- Ensure you're using HTTPS (required for service workers)
+- Check that manifest.json and service worker are loading correctly
+- PWA install prompt appears only once every 7 days if dismissed
+
+**Service worker not registering:**
+- Check browser console for errors
+- Ensure `public/sw.js` exists and is accessible
+- Clear browser cache and reload
+
 ---
+
+## Key Features Implemented
+
+### Phase 1-2: Foundation
+- ✅ Next.js 14 static export configuration
+- ✅ TypeScript types for all entities (Session, Feed, Folder, Article)
+- ✅ API client with Basic auth, exponential backoff, error handling
+- ✅ SWR integration for client-side data fetching
+- ✅ Service worker for offline capability
+- ✅ PWA manifest for installable app
+
+### Phase 3: User Story 1 - Timeline
+- ✅ Multi-step login wizard with URL validation
+- ✅ Server connectivity check using `/version` endpoint (Phase 4)
+- ✅ Credentials validation via `/feeds` endpoint
+- ✅ Aggregated timeline with unread/all toggle
+- ✅ Infinite scroll with prefetching
+- ✅ Article cards with lazy-loaded content
+- ✅ Unread count aggregation (computed client-side)
+
+### Phase 5: PWA Install
+- ✅ Install prompt detection and UI
+- ✅ 7-day dismissal cooldown
+- ✅ Manual install trigger in settings
+
+### Phase 6: Polish
+- ✅ Accessibility testing with axe-core (11/12 tests passing, WCAG 2.1 AA)
+- ✅ Comprehensive E2E and unit test coverage
+- ✅ Documentation updates
 
 ## Resources
 
 - [Next.js Static Export Docs](https://nextjs.org/docs/app/building-your-application/deploying/static-exports)
-- [Nextcloud News API Docs](https://github.com/nextcloud/news/blob/master/docs/api/api-v1-3.md)
+- [Nextcloud News API v1.3](https://github.com/nextcloud/news/blob/master/docs/externalapi/Legacy.md)
 - [SWR Documentation](https://swr.vercel.app/)
 - [Playwright Testing](https://playwright.dev/)
+- [Vitest Unit Testing](https://vitest.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
+- [MSW (Mock Service Worker)](https://mswjs.io/)
+- [Project Repository](https://github.com/paulstaab/feedfront)

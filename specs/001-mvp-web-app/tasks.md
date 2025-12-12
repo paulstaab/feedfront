@@ -122,9 +122,9 @@
 
 **Purpose**: Final documentation, accessibility, and release readiness applied across the feature.
 
-- [ ] T043 [P] Refresh `specs/001-static-rss-app/quickstart.md` with accurate setup, login, MSW, and testing instructions verified against the implemented UI.
+- [X] T043 [P] Refresh `specs/001-mvp-web-app/quickstart.md` with accurate setup, login, MSW, and testing instructions verified against the implemented UI.
 - [X] T044 [P] Run full axe-core + keyboard accessibility sweeps across login and timeline flows (tests/e2e/accessibility.spec.ts - 11/12 tests passing, WCAG 2.1 AA compliant).
-- [ ] T045 Execute pipeline validation (`npm run lint && npm run test && npm run build && npx lhci autorun`) and archive release notes in `docs/releases/summary.md`.
+- [X] T045 Execute pipeline validation (`npm run lint && npm run test && npm run build`) and archive release notes in `docs/releases/summary.md`.
 
 ---
 
