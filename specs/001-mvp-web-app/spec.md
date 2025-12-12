@@ -1,9 +1,9 @@
-# Feature Specification: Static Headless RSS Web App
+# Feature Specification: MVP Progressive Headless RSS Web App
 
-**Feature Branch**: `001-static-rss-app`  
+**Feature Branch**: `001-pwa-rss-app`  
 **Created**: 2025-12-10  
 **Status**: Draft  
-**Input**: User description: "I want to build a static web app that displays aggregated rss feed for a user. it should be able to act as a front-end for an headless-rss backend (https://github.com/paulstaab/headless-rss). It should use the Nextcloud v1.3 API provided by headless-rss. The openapi spec for it is available in .specify/memory/headless-rss-openapi.json. Only use endpoints below /index.php/apps/news/api/v1-3"
+**Input**: User description: "I want to build a progressive web app that displays aggregated rss feed for a user. it should be able to act as a front-end for an headless-rss backend (https://github.com/paulstaab/headless-rss). It should use the Nextcloud v1.3 API provided by headless-rss. The openapi spec for it is available in .specify/memory/headless-rss-openapi.json. Only use endpoints below /index.php/apps/news/api/v1-3.It should have a login wizzard and a main page for looking at the lastest article. It should be possible for a user to mark feeds are read. Do not include feed and folder management for now."
 
 ## Clarifications
 
@@ -41,6 +41,7 @@ As a headless-rss user, I want to log in with my Nextcloud credentials and immed
 2. **Given** there are zero unread items, **When** the timeline loads, **Then** the UI shows an "All caught up" empty state without network errors and no layout shift.
 3. **Given** the user scrolls beyond the first batch, **When** the viewport nears the end, **Then** the client requests the next batch using `offset` pagination without duplicating items.
 4. **Given** the user switches the timeline toggle from "Unread" to "All", **When** the toggle changes, **Then** the client reissues the `/items` request with `getRead=true` and blends read history without a full reload.
+5. **Given** the user has previously loaded the timeline, **When** the user goes offline and reopens the app, **Then** the service worker serves cached content and displays an offline banner without showing network errors.
 
 ---
 
@@ -56,23 +57,9 @@ As a user, I want to navigate folders/feeds, filter items, and mark or star arti
 
 1. **Given** the user selects a folder, **When** they change the filter to that folder, **Then** the client re-fetches items with `type=1` (folder) and `id=<folder_id>` and refreshes the timeline within 500ms.
 2. **Given** the user taps "Mark as read" on an item, **When** the action completes, **Then** `/index.php/apps/news/api/v1-3/items/{item_id}/read` responds 200 and the UI updates the unread badge locally without a full reload.
-3. **Given** the user stars multiple items, **When** they submit the bulk action, **Then** `/index.php/apps/news/api/v1-3/items/star/multiple` is called with the selected GUID hashes and the UI reflects the starred state even if the network request is slow (optimistic update + rollback on failure).
-
----
-
-### User Story 3 - Manage Subscriptions (Priority: P3)
-
-As a user, I want to add, rename, move, or delete feeds and folders so that I can curate my sources without leaving Feedfront.
-
-**Why this priority**: Subscription management is secondary to reading but essential for retaining users who want a single front-end on top of headless-rss.
-
-**Independent Test**: Using only the static UI, perform each CRUD action (create folder, rename feed, move feed, delete feed) via the v1.3 endpoints and verify changes propagate to the timeline without manual refresh.
-
-**Acceptance Scenarios**:
-
-1. **Given** a valid feed URL, **When** the user submits it, **Then** `/index.php/apps/news/api/v1-3/feeds` (POST) is called, success feedback is shown, and the new feed appears in the sidebar with `unread=0`.
-2. **Given** a feed assigned to Folder A, **When** the user moves it to Folder B, **Then** `/index.php/apps/news/api/v1-3/feeds/{feed_id}/move` responds 200 and the navigation tree updates within 1s.
-3. **Given** a folder rename request, **When** `/index.php/apps/news/api/v1-3/folders/{folder_id}` (PUT) succeeds, **Then** the UI reflects the new label everywhere (timeline badges, dropdowns) without stale text.
+3. **Given** the user selects "Mark all as read" for a feed, **When** the action completes, **Then** `/index.php/apps/news/api/v1-3/feeds/{feed_id}/read` responds 200 and all items from that feed are marked read with the unread count resetting to 0 without a page reload.
+4. **Given** the user selects "Mark all as read" for a folder, **When** the action completes, **Then** `/index.php/apps/news/api/v1-3/folders/{folder_id}/read` responds 200 and all items within that folder are marked read with aggregated unread counts updating across all affected feeds.
+5. **Given** the user stars multiple items, **When** they submit the bulk action, **Then** `/index.php/apps/news/api/v1-3/items/star/multiple` is called with the selected GUID hashes and the UI reflects the starred state even if the network request is slow (optimistic update + rollback on failure).
 
 ---
 
@@ -84,7 +71,9 @@ As a user, I want to add, rename, move, or delete feeds and folders so that I ca
 - Feed or folder lists longer than 1,000 entries must virtualize the sidebar and throttle `/feeds` refreshes to avoid layout jank.
 - API throttling or >2s latency should trigger exponential backoff with user-visible retry affordances.
 - Items containing large enclosures (audio/video) should collapse media previews by default to stay within performance and bundle budgets.
-- Network-less mode should keep the static shell usable and show an offline indicator; no requests should be attempted until connectivity returns.
+- Network-less mode should serve cached content via service worker, keep the app shell usable, and show an offline banner; background sync should queue mutation requests until connectivity returns.
+- Service worker updates should prompt the user to reload when a new version is detected without disrupting active reading sessions.
+- Install prompts should respect the user's "dismiss" choice and not re-prompt for at least 7 days unless manually triggered from app settings.
 
 ## Requirements *(mandatory)*
 
@@ -102,11 +91,12 @@ As a user, I want to add, rename, move, or delete feeds and folders so that I ca
 - **FR-005**: Display unread counts per feed and folder by computing them client-side from `/index.php/apps/news/api/v1-3/items` responses (tallying `unread=true` articles per feed and aggregating to folders); treat these client-aggregated values as the source of truth even if the feeds API exposes its own unread counts, and keep counts synchronized after user actions without full reloads.
 - **FR-006**: Allow marking single or multiple items as read/unread/starred by calling the appropriate v1.3 endpoints (`/items/{item_id}/read`, `/items/{item_id}/unread`, `/items/star/multiple`, `/items/unstar/multiple`, `/items/read/multiple`).
 - **FR-007**: Allow marking feeds or folders entirely read via `/feeds/{feed_id}/read` and `/folders/{folder_id}/read` with optimistic UI updates.
-- **FR-008**: Support adding feeds (`POST /feeds`), deleting feeds (`DELETE /feeds/{feed_id}`), renaming feeds (`POST /feeds/{feed_id}/rename`), and moving feeds (`POST /feeds/{feed_id}/move`).
-- **FR-009**: Support folder CRUD via `/folders` (POST), `/folders/{folder_id}` (PUT/DELETE) while preventing destructive actions when feeds still exist unless the API confirms cascading behavior.
-- **FR-010**: Persist lightweight client preferences (view mode, sort order) in local storage without storing feed content to respect privacy expectations.
-- **FR-011**: Expose diagnostics (last sync timestamp, current API host) in a debug drawer to satisfy Constitution observability requirements.
-- **FR-012**: Provide graceful error handling for HTTP 4xx/5xx responses with actionable copy and retry controls; errors must not leave the UI in an indeterminate state.
+- **FR-008**: Persist lightweight client preferences (view mode, sort order) in local storage without storing feed content to respect privacy expectations.
+- **FR-009**: Provide graceful error handling for HTTP 4xx/5xx responses with actionable copy and retry controls; errors must not leave the UI in an indeterminate state.
+- **FR-011**: Register a service worker that implements a cache-first strategy for static assets (JS, CSS, fonts, icons) and a network-first with cache fallback strategy for API responses, storing up to 50 articles and their media for offline access.
+- **FR-012**: Provide a web app manifest (`manifest.json`) with app name, icons (192x192, 512x512), theme colors, display mode (`standalone`), and start URL to enable installation on mobile and desktop platforms.
+- **FR-013**: Display an install prompt when the PWA install criteria are met (HTTPS, manifest, service worker) and allow users to add the app to their home screen or desktop; honor user dismissals and provide a manual install option in settings.
+- **FR-014**: Queue mutation requests (mark read, star, move) in IndexedDB when offline and replay them via background sync when connectivity returns, with conflict resolution that defers to server state on mismatch.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -118,19 +108,20 @@ As a user, I want to add, rename, move, or delete feeds and folders so that I ca
 
 ### Assumptions
 
-- Headless-rss exposes the Nextcloud API over HTTPS with CORS headers that allow the static frontend’s origin.
+- Headless-rss exposes the Nextcloud API over HTTPS with CORS headers that allow the PWA's origin.
 - Users authenticate with Nextcloud app passwords created specifically for headless-rss; tokens can be revoked without affecting other services.
 - Server time and client time are roughly in sync (±5s) so pagination based on `lastModified` behaves predictably.
-- The CDN hosting Feedfront supports immutable deployments and can cache static assets for ≥30 days.
+- The hosting provider serves the PWA over HTTPS with appropriate headers for service worker registration and supports immutable deployments.
+- The service worker has access to Cache Storage API and IndexedDB for offline data persistence.
 
 ## Experience & Performance Standards *(mandatory)*
 
 - **UX Consistency**: Use the shared Feedfront token set (`src/styles/tokens.css`) for color/spacing/typography, maintain WCAG 2.1 AA contrast (≥4.5:1) verified via axe-core CI, and ensure keyboard focus order matches visual order (sidebar → timeline → article panel). Microcopy must follow the existing tone in README examples.
 - **Responsive Behavior**: Support breakpoints at 320px (single-column stack), 768px (sidebar collapsible), 1024px (two-column layout), and 1440px (three-panel view). Acceptance involves Percy snapshots at each breakpoint showing intact navigation, readable typography, and overflow handling for long feed names.
-- **Visual Regression Proof**: Capture Percy (or Playwright screenshot) suites covering onboarding, empty state, timeline with media, and subscription management modals. Diffs must be reviewed and approved in PR checklists.
-- **Performance Budgets**: Keep the main JavaScript bundle ≤180KB gzip, CSS ≤60KB gzip.
-- **Data Loading Strategy**: Lazy-load article content only when the card scrolls into view, prefetch next batches when 75% scroll depth is reached, and throttle folder/feed refreshes to once per 30s unless triggered manually. All API calls must append a user agent header for observability.
-- **Static Build Strategy**: The app compiles via `npm run build && npm run export` into static assets served from `/out`. Build-time data is limited to configuration defaults; runtime hydration prompts the user for credentials, then fetches data client-side. A mock API fixture is bundled for automated tests so the static export remains deterministic.
+- **Visual Regression Proof**: Capture Percy (or Playwright screenshot) suites covering onboarding, empty state, timeline with media, and read state management. Diffs must be reviewed and approved in PR checklists.
+- **Data Loading Strategy**: Lazy-load article content only when the card scrolls into view, prefetch next batches when 75% scroll depth is reached, and throttle folder/feed refreshes unless triggered manually. Service worker should precache critical assets and implement runtime caching for API responses.
+- **PWA Build Strategy**: The app compiles via `npm run build` with Next.js static export into assets served from `/out`, including a service worker and manifest.json. Build-time data is limited to configuration defaults; runtime hydration prompts the user for credentials, then fetches data client-side with service worker caching. Service worker must pass Lighthouse PWA audit including manifest validation, offline support, and installability criteria.
+- **Offline-First Architecture**: Implement a layered caching strategy where the app shell (HTML, CSS, JS) is cached on install, API responses are cached on fetch, and article images use cache-first with fallback. Mutations are queued in IndexedDB and synced when online.
 
 ## Success Criteria *(mandatory)*
 
@@ -144,5 +135,7 @@ As a user, I want to add, rename, move, or delete feeds and folders so that I ca
 - **SC-001**: Removed
 - **SC-002**: Removed
 - **SC-003**: At least 90% of usability test participants complete the onboarding + timeline browsing flow without assistance, and axe-core reports 0 critical accessibility violations per release.
-- **SC-004**: The static export stays under 30MB total asset weight and deploys as immutable artifacts with zero runtime server dependencies, ensuring CDN cache hit rate ≥95%.
+- **SC-004**: The PWA build deploys as immutable artifacts with zero runtime server dependencies.
+- **SC-005**: The PWA passes Lighthouse PWA installability criteria (service worker, manifest, HTTPS) and achieves ≥95 for Accessibility.
+- **SC-006**: At least 80% of cached content remains accessible when users go offline, with mutation requests successfully queued and synced when connectivity returns.
 
