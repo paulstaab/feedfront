@@ -107,7 +107,7 @@ jobs:
       - name: Inspect image and summarize
         id: summary
         run: |
-          IMAGE="${REGISTRY_IMAGE}:latest"
+          IMAGE="ghcr.io/${{ github.repository }}:latest"
           RAW=$(docker buildx imagetools inspect --format '{{json .}}' "$IMAGE")
           DIGEST=$(node -e "const data=JSON.parse(process.argv[1]);console.log(data.digest || data.manifest?.digest || '');" "$RAW")
           SIZE_BYTES=$(node -e "const data=JSON.parse(process.argv[1]);const manifest=data.manifest||data.manifests?.[0];const size=manifest?.descriptor?.size ?? manifest?.size ?? 0;console.log(size);")
