@@ -172,7 +172,6 @@ export function useInfiniteScrollTrigger(
   loadMore: () => void,
   threshold = DEFAULT_PREFETCH_THRESHOLD,
 ) {
-   
   useEffect(() => {
     if (!hasMore) return;
 

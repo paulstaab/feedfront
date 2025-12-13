@@ -52,7 +52,7 @@ export function OfflineBanner({
   const [dismissed, setDismissed] = useState(false);
 
   // Reset dismissed state when coming back online then going offline again
-   
+
   useLayoutEffect(() => {
     if (isOnline) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
