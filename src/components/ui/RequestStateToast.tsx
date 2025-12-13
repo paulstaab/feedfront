@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 
 export type ToastType = 'error' | 'warning' | 'success' | 'info';
 
@@ -42,8 +42,9 @@ export function RequestStateToast({ message, onDismiss }: RequestStateToastProps
     }
   }, [message, onDismiss]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (message) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsVisible(true);
 
       // Auto-dismiss after duration

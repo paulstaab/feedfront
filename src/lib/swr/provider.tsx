@@ -77,13 +77,10 @@ interface SWRProviderProps {
  */
 export function SWRProvider({ children, config }: SWRProviderProps) {
   // Merge default config with any overrides
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const mergedConfig: SWRConfiguration = config ? { ...swrConfig, ...config } : swrConfig;
 
-  return (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    <SWRConfig value={mergedConfig}>{children}</SWRConfig>
-  );
+  return <SWRConfig value={mergedConfig}>{children}</SWRConfig>;
 }
 
 export default SWRProvider;

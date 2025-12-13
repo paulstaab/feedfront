@@ -7,10 +7,9 @@ import AxeBuilder from '@axe-core/playwright';
  */
 
 const test = base.extend<{ makeAxeBuilder: () => AxeBuilder }>({
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  makeAxeBuilder: async ({ page }, use) => {
+  makeAxeBuilder: async ({ page }, fixtureUse) => {
     const createAxeBuilder = () => new AxeBuilder({ page });
-    await use(createAxeBuilder);
+    await fixtureUse(createAxeBuilder);
   },
 });
 

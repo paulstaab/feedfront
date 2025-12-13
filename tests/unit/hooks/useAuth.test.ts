@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { validateServerUrl, normalizeBaseUrl } from '@/lib/config/env';
 
 /**
@@ -54,62 +53,62 @@ describe('useAuth', () => {
   });
 
   describe('session persistence', () => {
-    it('should store credentials in sessionStorage by default', async () => {
+    it('should store credentials in sessionStorage by default', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should store credentials in localStorage when remember-device is enabled', async () => {
+    it('should store credentials in localStorage when remember-device is enabled', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should clear credentials on logout', async () => {
+    it('should clear credentials on logout', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
   });
 
   describe('authentication handshake', () => {
-    it('should ping /feeds to validate credentials', async () => {
+    it('should ping /feeds to validate credentials', () => {
       // Test will be implemented once useAuth hook is created
       // Should verify that /feeds endpoint is called with Basic auth header
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should store credentials only after successful validation', async () => {
+    it('should store credentials only after successful validation', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should not store credentials if validation fails', async () => {
+    it('should not store credentials if validation fails', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should handle 401 Unauthorized responses', async () => {
+    it('should handle 401 Unauthorized responses', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should handle network errors gracefully', async () => {
+    it('should handle network errors gracefully', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
   });
 
   describe('remember device', () => {
-    it('should use sessionStorage when rememberDevice=false', async () => {
+    it('should use sessionStorage when rememberDevice=false', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should use localStorage when rememberDevice=true', async () => {
+    it('should use localStorage when rememberDevice=true', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should migrate from sessionStorage to localStorage when enabling remember', async () => {
+    it('should migrate from sessionStorage to localStorage when enabling remember', () => {
       // Test will be implemented once useAuth hook is created
       expect(true).toBe(true); // Placeholder
     });

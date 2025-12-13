@@ -278,7 +278,9 @@ test.describe('US1: Login and Timeline', () => {
       const initialCount = await page.getByRole('article').count();
 
       // Scroll to bottom
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.evaluate(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
 
       // Wait for more articles to load
       await page.waitForTimeout(1000); // Give time for prefetch
@@ -299,7 +301,7 @@ test.describe('US1: Login and Timeline', () => {
       await expect(firstArticle).toBeVisible();
     });
 
-    test('should display empty state when no items', async ({ page }) => {
+    test('should display empty state when no items', () => {
       // This requires mocking an empty response
       // Placeholder for empty state test
       expect(true).toBe(true);
@@ -307,7 +309,7 @@ test.describe('US1: Login and Timeline', () => {
   });
 
   test.describe('Offline Behavior', () => {
-    test('should show offline indicator when network is unavailable', async ({ page, context }) => {
+    test('should show offline indicator when network is unavailable', async ({ page }) => {
       // Set up authenticated session first
       await page.goto('/login/');
       await page.waitForLoadState('networkidle');
@@ -328,7 +330,7 @@ test.describe('US1: Login and Timeline', () => {
       await expect(page.getByText(/you are currently offline/i).first()).toBeVisible();
     });
 
-    test('should hide offline indicator when network returns', async ({ page, context }) => {
+    test('should hide offline indicator when network returns', async ({ page }) => {
       // Set up authenticated session
       await page.goto('/login/');
       await page.waitForLoadState('networkidle');
