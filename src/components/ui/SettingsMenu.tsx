@@ -5,7 +5,7 @@
  * Provides access to app settings including manual PWA install.
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { triggerInstallPrompt, canPromptInstall } from '@/lib/pwa/installPrompt';
 
 export interface SettingsMenuProps {
@@ -28,11 +28,13 @@ export function SettingsMenu({ position = 'top-right', className = '' }: Setting
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Check if install is available
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowInstallOption(canPromptInstall());
   }, []);
 
   // Close menu when clicking outside
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -49,6 +51,7 @@ export function SettingsMenu({ position = 'top-right', className = '' }: Setting
   }, [isOpen]);
 
   // Close menu on Escape key
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {

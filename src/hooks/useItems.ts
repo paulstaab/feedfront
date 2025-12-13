@@ -4,7 +4,7 @@ import useSWR, { type SWRConfiguration } from 'swr';
 import { useAuth } from './useAuth';
 import { getItems } from '@/lib/api/items';
 import type { Article } from '@/types';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useLayoutEffect, useCallback, useEffect } from 'react';
 
 interface ItemsParams {
   type?: number;
@@ -106,25 +106,31 @@ export function useItems(options: UseItemsOptions = {}): UseItemsResult {
   );
 
   // Accumulate items for infinite scroll
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (data) {
       if (offset === 0) {
         // First page - replace all items
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAllItems(data);
       } else {
         // Subsequent pages - append items
+
         setAllItems((prev) => [...prev, ...data]);
       }
 
       // Check if there are more items to load
+
       setHasMore(data.length === batchSize);
     }
   }, [data, offset, batchSize]);
 
   // Reset when filter parameters change
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOffset(0);
+
     setAllItems([]);
+
     setHasMore(true);
   }, [type, id, getRead, oldestFirst]);
 

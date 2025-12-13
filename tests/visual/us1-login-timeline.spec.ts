@@ -23,7 +23,7 @@ const BREAKPOINTS = [
 
 test.describe('Visual: Login Wizard', () => {
   for (const breakpoint of BREAKPOINTS) {
-    test(`should match baseline at ${breakpoint.name} (${breakpoint.width}px)`, async ({
+    test(`should match baseline at ${breakpoint.name} (${String(breakpoint.width)}px)`, async ({
       page,
     }) => {
       await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });
@@ -82,7 +82,7 @@ test.describe('Visual: Timeline', () => {
   });
 
   for (const breakpoint of BREAKPOINTS) {
-    test(`should match timeline baseline at ${breakpoint.name} (${breakpoint.width}px)`, async ({
+    test(`should match timeline baseline at ${breakpoint.name} (${String(breakpoint.width)}px)`, async ({
       page,
     }) => {
       await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });

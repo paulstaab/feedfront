@@ -79,7 +79,7 @@ export const mockItems = [
 /**
  * Set up API mocks for E2E tests using Playwright route interception.
  */
-export async function setupApiMocks(page: Page, baseUrl: string = 'https://rss.example.com') {
+export async function setupApiMocks(page: Page, baseUrl = 'https://rss.example.com') {
   const apiPath = '/index.php/apps/news/api/v1-3';
   const apiBase = `${baseUrl}${apiPath}`;
 
@@ -95,7 +95,7 @@ export async function setupApiMocks(page: Page, baseUrl: string = 'https://rss.e
   // Mock feeds endpoint
   await page.route(`${apiBase}/feeds`, async (route: Route) => {
     const request = route.request();
-    const auth = request.headers()['authorization'];
+    const auth = request.headers().authorization;
 
     // Check for valid auth
     if (auth !== 'Basic dGVzdHVzZXI6dGVzdHBhc3M=') {
@@ -121,7 +121,7 @@ export async function setupApiMocks(page: Page, baseUrl: string = 'https://rss.e
   // Mock items endpoint
   await page.route(`${apiBase}/items**`, async (route: Route) => {
     const request = route.request();
-    const auth = request.headers()['authorization'];
+    const auth = request.headers().authorization;
 
     if (auth !== 'Basic dGVzdHVzZXI6dGVzdHBhc3M=') {
       await route.fulfill({
@@ -148,7 +148,7 @@ export async function setupApiMocks(page: Page, baseUrl: string = 'https://rss.e
   // Mock folders endpoint
   await page.route(`${apiBase}/folders`, async (route: Route) => {
     const request = route.request();
-    const auth = request.headers()['authorization'];
+    const auth = request.headers().authorization;
 
     if (auth !== 'Basic dGVzdHVzZXI6dGVzdHBhc3M=') {
       await route.fulfill({
@@ -170,10 +170,7 @@ export async function setupApiMocks(page: Page, baseUrl: string = 'https://rss.e
 /**
  * Set up mock for unreachable server (network error).
  */
-export async function setupUnreachableServer(
-  page: Page,
-  baseUrl: string = 'https://rss.example.com',
-) {
+export async function setupUnreachableServer(page: Page, baseUrl = 'https://rss.example.com') {
   const apiPath = '/index.php/apps/news/api/v1-3';
   const apiBase = `${baseUrl}${apiPath}`;
 
@@ -185,7 +182,7 @@ export async function setupUnreachableServer(
 /**
  * Set up mock for invalid API path (404).
  */
-export async function setupInvalidApiPath(page: Page, baseUrl: string = 'https://rss.example.com') {
+export async function setupInvalidApiPath(page: Page, baseUrl = 'https://rss.example.com') {
   const apiPath = '/index.php/apps/news/api/v1-3';
   const apiBase = `${baseUrl}${apiPath}`;
 

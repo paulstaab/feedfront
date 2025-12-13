@@ -51,7 +51,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Enter valid HTTPS URL
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Should show validation progress (checking connectivity text)
       // Note: This may be very fast with mocks, so we just verify the credentials appear
@@ -70,7 +70,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Mock a network error by using an unreachable URL
       await page.getByLabel(/server url/i).fill(unreachableUrl);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Should show connectivity error (check for network-related error messages)
       await expect(
@@ -91,7 +91,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Enter URL that returns 404 for /version
       await page.getByLabel(/server url/i).fill(wrongPathUrl);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Should show error about wrong server or API
       await expect(page.getByText(/not.*found|wrong.*server|invalid.*api/i)).toBeVisible();
@@ -106,7 +106,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Try to enter HTTP URL
       await page.getByLabel(/server url/i).fill('http://example.com');
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Should show error
       await expect(page.getByText(/must use https/i)).toBeVisible({ timeout: 10000 });
@@ -118,7 +118,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // HTML5 validation prevents empty submission, so fill URL to progress
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Should advance to credentials step
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
@@ -141,7 +141,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Fill in server URL
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Wait for validation step to complete
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
@@ -163,7 +163,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Progress to credentials step
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
 
       // Wait for credentials step
       await expect(page.getByLabel(/username/i)).toBeVisible();
@@ -185,7 +185,7 @@ test.describe('US1: Login and Timeline', () => {
 
       // Complete login without remember device
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
       await page.getByLabel(/username/i).fill(TEST_USERNAME);
       await page.getByLabel(/password/i).fill(TEST_PASSWORD);
@@ -209,7 +209,7 @@ test.describe('US1: Login and Timeline', () => {
       // Complete login with remember device
       await expect(page.getByLabel(/server url/i)).toBeVisible();
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
       await page.getByLabel(/username/i).fill(TEST_USERNAME);
       await page.getByLabel(/password/i).fill(TEST_PASSWORD);
@@ -231,7 +231,7 @@ test.describe('US1: Login and Timeline', () => {
       await page.goto('/login/');
       await page.waitForLoadState('networkidle');
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
       await page.getByLabel(/username/i).fill(TEST_USERNAME);
       await page.getByLabel(/password/i).fill(TEST_PASSWORD);
@@ -278,7 +278,9 @@ test.describe('US1: Login and Timeline', () => {
       const initialCount = await page.getByRole('article').count();
 
       // Scroll to bottom
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.evaluate(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
 
       // Wait for more articles to load
       await page.waitForTimeout(1000); // Give time for prefetch
@@ -299,7 +301,7 @@ test.describe('US1: Login and Timeline', () => {
       await expect(firstArticle).toBeVisible();
     });
 
-    test('should display empty state when no items', async ({ page }) => {
+    test('should display empty state when no items', () => {
       // This requires mocking an empty response
       // Placeholder for empty state test
       expect(true).toBe(true);
@@ -307,12 +309,12 @@ test.describe('US1: Login and Timeline', () => {
   });
 
   test.describe('Offline Behavior', () => {
-    test('should show offline indicator when network is unavailable', async ({ page, context }) => {
+    test('should show offline indicator when network is unavailable', async ({ page }) => {
       // Set up authenticated session first
       await page.goto('/login/');
       await page.waitForLoadState('networkidle');
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
       await page.getByLabel(/username/i).fill(TEST_USERNAME);
       await page.getByLabel(/password/i).fill(TEST_PASSWORD);
@@ -328,12 +330,12 @@ test.describe('US1: Login and Timeline', () => {
       await expect(page.getByText(/you are currently offline/i).first()).toBeVisible();
     });
 
-    test('should hide offline indicator when network returns', async ({ page, context }) => {
+    test('should hide offline indicator when network returns', async ({ page }) => {
       // Set up authenticated session
       await page.goto('/login/');
       await page.waitForLoadState('networkidle');
       await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-      await page.getByRole('button', { name: /continue|next/i }).click();
+      await page.getByRole('button', { name: /^continue$/i }).click();
       await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10000 });
       await page.getByLabel(/username/i).fill(TEST_USERNAME);
       await page.getByLabel(/password/i).fill(TEST_PASSWORD);

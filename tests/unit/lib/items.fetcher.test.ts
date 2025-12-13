@@ -1,7 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { server } from '../../mocks/server';
-import { http, HttpResponse } from 'msw';
-import { getItems } from '@/lib/api/items';
 import { aggregateUnreadCounts } from '@/lib/utils/unreadAggregator';
 
 /**
@@ -14,63 +11,60 @@ import { aggregateUnreadCounts } from '@/lib/utils/unreadAggregator';
  * - Offline handling
  */
 
-const mockBaseUrl = 'https://rss.example.com';
-const mockCredentials = btoa('testuser:testpass');
-
 describe('getItems', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('default parameters', () => {
-    it('should fetch unread items with type=3 and batchSize=50', async () => {
+    it('should fetch unread items with type=3 and batchSize=50', () => {
       // TODO: Implement proper test with mocked API client
       // getItems now uses internal API client that needs session context
       expect(true).toBe(true);
     });
 
-    it('should include Basic auth header', async () => {
+    it('should include Basic auth header', () => {
       // TODO: Implement proper test with mocked API client
       expect(true).toBe(true);
     });
   });
 
   describe('pagination', () => {
-    it('should support offset parameter for infinite scroll', async () => {
+    it('should support offset parameter for infinite scroll', () => {
       // TODO: Implement with proper API client mocking
       expect(true).toBe(true);
     });
 
-    it('should support custom batch sizes', async () => {
+    it('should support custom batch sizes', () => {
       // TODO: Implement with proper API client mocking
       expect(true).toBe(true);
     });
   });
 
   describe('filtering', () => {
-    it('should support getRead=true for showing all items', async () => {
+    it('should support getRead=true for showing all items', () => {
       // TODO: Implement with proper API client mocking
       expect(true).toBe(true);
     });
 
-    it('should support feed filtering with type=0', async () => {
+    it('should support feed filtering with type=0', () => {
       // TODO: Implement with proper API client mocking
       expect(true).toBe(true);
     });
   });
 
   describe('error handling', () => {
-    it('should handle 401 Unauthorized', async () => {
+    it('should handle 401 Unauthorized', () => {
       // TODO: Implement with proper API client mocking
       expect(true).toBe(true);
     });
 
-    it('should handle network errors', async () => {
+    it('should handle network errors', () => {
       // TODO: Implement with proper API client mocking
       expect(true).toBe(true);
     });
 
-    it('should implement exponential backoff on retries', async () => {
+    it('should implement exponential backoff on retries', () => {
       // Test will verify retry logic with increasing delays
       // Placeholder for retry mechanism test
       expect(true).toBe(true);

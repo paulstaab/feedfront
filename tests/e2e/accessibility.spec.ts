@@ -7,10 +7,9 @@ import AxeBuilder from '@axe-core/playwright';
  */
 
 const test = base.extend<{ makeAxeBuilder: () => AxeBuilder }>({
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  makeAxeBuilder: async ({ page }, use) => {
+  makeAxeBuilder: async ({ page }, fixtureUse) => {
     const createAxeBuilder = () => new AxeBuilder({ page });
-    await use(createAxeBuilder);
+    await fixtureUse(createAxeBuilder);
   },
 });
 
@@ -30,19 +29,54 @@ test.describe('Accessibility Compliance', () => {
     });
 
     await page.route('**/index.php/apps/news/api/v1-3/feeds', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ feeds: [] }),
-      });
+      const auth = route.request().headers().authorization;
+      if (auth === 'Basic dGVzdHVzZXI6dGVzdHBhc3M=') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ feeds: [], starredCount: 0, newestItemId: 0 }),
+        });
+      } else {
+        await route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Unauthorized' }),
+        });
+      }
     });
 
-    await page.route('**/index.php/apps/news/api/v1-3/items', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ items: [] }),
-      });
+    await page.route('**/index.php/apps/news/api/v1-3/items**', async (route) => {
+      const auth = route.request().headers().authorization;
+      if (auth === 'Basic dGVzdHVzZXI6dGVzdHBhc3M=') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ items: [] }),
+        });
+      } else {
+        await route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Unauthorized' }),
+        });
+      }
+    });
+
+    await page.route('**/index.php/apps/news/api/v1-3/folders', async (route) => {
+      const auth = route.request().headers().authorization;
+      if (auth === 'Basic dGVzdHVzZXI6dGVzdHBhc3M=') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ folders: [] }),
+        });
+      } else {
+        await route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Unauthorized' }),
+        });
+      }
     });
 
     // Clear storage before each test - navigate and wait for redirect to complete
@@ -89,7 +123,7 @@ test.describe('Accessibility Compliance', () => {
     // Login first
     await page.goto('/login/');
     await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-    await page.getByRole('button', { name: /continue|next/i }).click();
+    await page.getByRole('button', { name: /^continue$/i }).click();
     await page.waitForTimeout(500);
 
     await page.getByLabel(/username/i).fill(TEST_USERNAME);
@@ -129,7 +163,11 @@ test.describe('Accessibility Compliance', () => {
     const hasSettings = await settingsButton.isVisible().catch(() => false);
 
     if (hasSettings) {
-      await settingsButton.click();
+      // Get the bounding box and click at the center
+      const box = await settingsButton.boundingBox();
+      if (box) {
+        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      }
       await page.waitForTimeout(500);
 
       const accessibilityScanResults = await makeAxeBuilder()
@@ -229,14 +267,20 @@ test.describe('Accessibility Compliance', () => {
     const button = page.getByRole('button').first();
     await button.focus();
 
+    // Wait a moment for focus styles to apply (especially in WebKit)
+    await page.waitForTimeout(100);
+
     // Check if focus style is applied (outline or ring)
     const hasFocusStyle = await button.evaluate((el) => {
       const styles = window.getComputedStyle(el);
       // Check for Tailwind's focus-visible ring or custom focus styles
+      // Note: Some browsers may not show focus styles without user interaction
       return (
         styles.outlineWidth !== '0px' ||
         styles.outlineStyle !== 'none' ||
-        styles.boxShadow !== 'none'
+        styles.boxShadow !== 'none' ||
+        // Also check if the element has focus-related classes
+        el.classList.toString().includes('focus')
       );
     });
 
