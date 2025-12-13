@@ -4,7 +4,7 @@ import useSWR, { type SWRConfiguration } from 'swr';
 import { useAuth } from './useAuth';
 import { getItems } from '@/lib/api/items';
 import type { Article } from '@/types';
-import { useState, useLayoutEffect, useCallback } from 'react';
+import { useState, useLayoutEffect, useCallback, useEffect } from 'react';
 
 interface ItemsParams {
   type?: number;
@@ -172,7 +172,7 @@ export function useInfiniteScrollTrigger(
   loadMore: () => void,
   threshold = DEFAULT_PREFETCH_THRESHOLD,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   useEffect(() => {
     if (!hasMore) return;
 

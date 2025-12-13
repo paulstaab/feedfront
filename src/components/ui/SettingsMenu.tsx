@@ -34,7 +34,7 @@ export function SettingsMenu({ position = 'top-right', className = '' }: Setting
   }, []);
 
   // Close menu when clicking outside
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   useEffect(() => {
     if (!isOpen) return;
 
@@ -51,7 +51,7 @@ export function SettingsMenu({ position = 'top-right', className = '' }: Setting
   }, [isOpen]);
 
   // Close menu on Escape key
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+   
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
