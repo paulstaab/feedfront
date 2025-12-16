@@ -136,6 +136,33 @@ export const CONFIG = {
 
   /** User-Agent header for API requests */
   USER_AGENT: 'Feedfront/1.0',
+
+  /** Timeline cache namespace stored in localStorage */
+  TIMELINE_CACHE_KEY: 'feedfront.timeline.v1',
+
+  /** Current schema version for the timeline cache envelope */
+  TIMELINE_CACHE_VERSION: 1,
+
+  /** Maximum number of articles to persist per folder */
+  TIMELINE_MAX_ITEMS_PER_FOLDER: 200,
+
+  /** Maximum age (in days) for cached articles before pruning */
+  TIMELINE_MAX_ITEM_AGE_DAYS: 14,
+
+  /** Performance mark label for first paint of cached timeline */
+  TIMELINE_PERF_CACHE_READY_MARK: 'timeline-cache-ready',
+
+  /** Target (ms) for cache render completion */
+  TIMELINE_PERF_CACHE_TARGET_MS: 500,
+
+  /** Performance mark label for completion of timeline updates */
+  TIMELINE_PERF_UPDATE_MARK: 'timeline-update-complete',
+
+  /** Target (ms) for completing an update cycle */
+  TIMELINE_PERF_UPDATE_TARGET_MS: 10_000,
+
+  /** Exponential retry delays for timeline updates (ms) */
+  TIMELINE_UPDATE_RETRY_DELAYS_MS: [1000, 2000, 4000] as const,
 } as const;
 
 /**
