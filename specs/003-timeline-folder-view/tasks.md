@@ -17,11 +17,11 @@ Purpose: Ensure configuration, fixtures, and test scaffolding are ready before f
 
 Purpose: Core state, types, and hooks that every user story depends on. **All later phases depend on this phase.**
 
-- [ ] T004 Implement timeline cache helpers in src/lib/storage/timelineCache.ts (load/store/prune) and export from src/lib/storage.ts.
-- [ ] T005 [P] Extend folder/article interfaces in src/types/folder.ts, src/types/article.ts, and src/types/index.ts with TimelineCacheEnvelope, FolderQueueEntry, and ArticlePreview types.
-- [ ] T006 [P] Build folder sorting + unread aggregation utilities in src/lib/utils/unreadAggregator.ts per data-model.md rules (caps, tie-breakers, pruning).
-- [ ] T007 Create src/hooks/useFolderQueue.ts that wraps useItems, exposes folder queue state, and plugs into storage/timeline cache (no UI yet).
-- [ ] T008 [P] Add Vitest coverage for cache + aggregation reducers in tests/unit/lib/timelineCache.test.ts and tests/unit/lib/unreadAggregator.test.ts.
+- [X] T004 Implement timeline cache helpers in src/lib/storage/timelineCache.ts (load/store/prune) and export from src/lib/storage.ts.
+- [X] T005 [P] Extend folder/article interfaces in src/types/folder.ts, src/types/article.ts, and src/types/index.ts with TimelineCacheEnvelope, FolderQueueEntry, and ArticlePreview types.
+- [X] T006 [P] Build folder sorting + unread aggregation utilities in src/lib/utils/unreadAggregator.ts per data-model.md rules (caps, tie-breakers, pruning).
+- [X] T007 Create src/hooks/useFolderQueue.ts that wraps useItems, exposes folder queue state, and plugs into storage/timeline cache (no UI yet).
+- [X] T008 [P] Add Vitest coverage for cache + aggregation reducers in tests/unit/lib/timelineCache.test.ts and tests/unit/lib/unreadAggregator.test.ts.
 
 ---
 
