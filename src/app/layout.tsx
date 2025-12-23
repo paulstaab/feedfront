@@ -8,7 +8,6 @@ import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { ServiceWorkerRegistration } from '@/components/ui/ServiceWorkerRegistration';
 import { InstallPrompt } from '@/components/ui/InstallPrompt';
 import { SettingsMenu } from '@/components/ui/SettingsMenu';
-import { SidebarProvider } from '@/components/Sidebar/SidebarContext';
 
 export const metadata: Metadata = {
   title: 'Feedfront',
