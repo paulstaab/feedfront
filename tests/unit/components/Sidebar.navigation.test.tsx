@@ -1,8 +1,17 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Sidebar } from '@/components/Sidebar/Sidebar';
-import { SidebarProvider } from '@/components/Sidebar/SidebarContext';
 import type { FolderQueueEntry } from '@/types/folder';
+
+// Mock the useSidebar hook to always return open for navigation tests
+vi.mock('@/components/Sidebar/SidebarContext', () => ({
+  SidebarProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useSidebar: () => ({
+    isOpen: true,
+    toggle: vi.fn(),
+    close: vi.fn(),
+  }),
+}));
 
 const mockFolders: FolderQueueEntry[] = [
   {
@@ -35,16 +44,10 @@ const mockFolders: FolderQueueEntry[] = [
 ];
 
 describe('Sidebar Navigation', () => {
-  const renderWithProvider = (ui: React.ReactElement) => {
-    return render(<SidebarProvider>{ui}</SidebarProvider>);
-  };
-
   it('renders only folders with unread articles', () => {
     const onSelectFolder = vi.fn();
 
-    renderWithProvider(
-      <Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />,
-    );
+    render(<Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />);
 
     // Should show Tech News and Politics, but not Sports
     expect(screen.getByText('Tech News')).toBeInTheDocument();
@@ -67,7 +70,7 @@ describe('Sidebar Navigation', () => {
     ];
     const onSelectFolder = vi.fn();
 
-    renderWithProvider(
+    render(
       <Sidebar folders={foldersWithZero} selectedFolderId={1} onSelectFolder={onSelectFolder} />,
     );
 
@@ -80,9 +83,7 @@ describe('Sidebar Navigation', () => {
   it('highlights the selected folder', () => {
     const onSelectFolder = vi.fn();
 
-    renderWithProvider(
-      <Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />,
-    );
+    render(<Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />);
 
     const techNewsItem = screen.getByText('Tech News');
     expect(techNewsItem.parentElement).toHaveClass('bg-accent'); // Assuming selected styling
@@ -91,9 +92,7 @@ describe('Sidebar Navigation', () => {
   it('calls onSelectFolder when clicking a folder', () => {
     const onSelectFolder = vi.fn();
 
-    renderWithProvider(
-      <Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />,
-    );
+    render(<Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />);
 
     const politicsItem = screen.getByText('Politics');
     fireEvent.click(politicsItem);
@@ -104,7 +103,7 @@ describe('Sidebar Navigation', () => {
   it('selects first folder with unread articles when no selectedFolderId', () => {
     const onSelectFolder = vi.fn();
 
-    renderWithProvider(
+    render(
       <Sidebar
         folders={mockFolders}
         selectedFolderId={undefined}

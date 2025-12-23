@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useFolderQueue } from '@/hooks/useFolderQueue';
@@ -26,6 +26,21 @@ import {
 function TimelineContent() {
   const router = useRouter();
   const { isAuthenticated, isInitializing } = useAuth();
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useLayoutEffect(() => {
+    const media = window.matchMedia('(min-width: 768px)');
+    setIsDesktop(media.matches);
+
+    const handler = (e: MediaQueryListEvent) => {
+      setIsDesktop(e.matches);
+    };
+    media.addEventListener('change', handler);
+
+    return () => {
+      media.removeEventListener('change', handler);
+    };
+  }, []);
 
   // Mark cache load start before hook initialization
   useEffect(() => {
@@ -127,19 +142,19 @@ function TimelineContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-surface flex">
       {/* Sidebar */}
       <Sidebar folders={queue} selectedFolderId={activeFolder?.id} onSelectFolder={selectFolder} />
 
       {/* Main content */}
       <main className="flex-1 min-w-0">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <header className="bg-bg-primary border-b border-border sticky top-0 z-60">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
-                <MobileToggle />
-                <h1 className="text-2xl font-bold text-gray-900">Timeline</h1>
+                {!isDesktop && <MobileToggle />}
+                <h1 className="text-2xl font-bold text-text">Timeline</h1>
               </div>
 
               {/* Unread summary */}

@@ -6,7 +6,8 @@ export function MobileToggle() {
   return (
     <button
       onClick={toggle}
-      className="md:hidden p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-accent"
+      data-testid="mobile-toggle"
+      className="md:hidden p-2 rounded-md hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-accent"
       aria-label="Toggle sidebar"
     >
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
