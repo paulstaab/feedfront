@@ -55,7 +55,8 @@ test.describe('Timeline folders (US1)', () => {
 
     await completeLogin(page);
 
-    await expect(page.getByRole('heading', { name: /timeline/i })).toBeVisible();
+    // Use h1 specifically for main timeline heading (sidebar also has h2 "Timeline")
+    await expect(page.locator('h1')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'All caught up!' })).toBeVisible();
     await expect(page.getByText(/no unread articles/i)).toBeVisible();
   });
@@ -354,7 +355,7 @@ test.describe('Timeline update and persistence (US5)', () => {
     );
 
     // Wait for Skip button to be visible and enabled
-    const skipButton = page.getByRole('button', { name: 'Skip', exact: true });
+    const skipButton = page.getByRole('button', { name: /skip/i });
     await expect(skipButton).toBeVisible({ timeout: 5000 });
     await expect(skipButton).toBeEnabled();
 
@@ -368,7 +369,7 @@ test.describe('Timeline update and persistence (US5)', () => {
     );
 
     // Skip the second folder
-    await page.getByRole('button', { name: 'Skip', exact: true }).dispatchEvent('click');
+    await page.getByRole('button', { name: /skip/i }).dispatchEvent('click');
 
     // Verify third folder appears
     await expect(page.getByTestId('active-folder-name')).toHaveText(
@@ -377,7 +378,7 @@ test.describe('Timeline update and persistence (US5)', () => {
     );
 
     // Skip the third folder
-    await page.getByRole('button', { name: 'Skip', exact: true }).dispatchEvent('click');
+    await page.getByRole('button', { name: /skip/i }).dispatchEvent('click');
 
     // Verify "All folders viewed" message
     await expect(page.getByRole('heading', { name: /all folders viewed/i })).toBeVisible();

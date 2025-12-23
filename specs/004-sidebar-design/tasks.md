@@ -106,18 +106,18 @@ description: "Tasks for implementing sidebar navigation and design language upda
 
 ### Tests & Checks for User Story 3 (Right-Sized)
 
-- [ ] T027 [P] [US3] Add E2E tests covering mobile open/close behavior, including tapping outside to close and auto-close on folder select in tests/e2e/sidebar-mobile.spec.ts
-- [ ] T028 [P] [US3] Add E2E tests validating responsive behavior across breakpoints (mobile <768px, tablet 768-1024px, desktop ≥768px) in tests/e2e/sidebar-responsive.spec.ts
+- [X] T027 [P] [US3] Add E2E tests covering mobile open/close behavior, including tapping outside to close and auto-close on folder select in tests/e2e/sidebar-mobile.spec.ts
+- [X] T028 [P] [US3] Add E2E tests validating responsive behavior across breakpoints (mobile <768px, tablet 768-1024px, desktop ≥768px) in tests/e2e/sidebar-responsive.spec.ts
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement MobileToggle (hamburger) button positioned in the top-left of the header that calls SidebarContext.toggle in src/components/Sidebar/MobileToggle.tsx
-- [ ] T030 [US3] Connect MobileToggle into the header or layout so it appears only on small viewports using responsive classes in src/app/layout.tsx
-- [ ] T031 [US3] Implement a mobile sidebar presentation using framer-motion to slide in/out from the left with ≤200ms animation, coordinated with showing/hiding the dimming overlay in src/components/Sidebar/Sidebar.tsx
-- [ ] T032 [US3] Implement a semi-transparent dimming overlay behind the sidebar that covers the rest of the content and closes the sidebar when tapped on mobile in src/components/Sidebar/Overlay.tsx
-- [ ] T033 [US3] Ensure sidebar automatically closes on mobile after a folder is selected while keeping the selected folder’s articles visible in src/components/Sidebar/Sidebar.tsx
-- [ ] T034 [US3] Ensure sidebar is always visible on desktop (ignoring isOpen) and transitions correctly when resizing between mobile and desktop breakpoints in src/components/Sidebar/Sidebar.tsx
-- [ ] T035 [US3] Add Escape key handler to close the sidebar on mobile while preserving normal keyboard navigation in src/components/Sidebar/Sidebar.tsx
+- [X] T029 [P] [US3] Implement MobileToggle (hamburger) button positioned in the top-left of the header that calls SidebarContext.toggle in src/components/Sidebar/MobileToggle.tsx
+- [X] T030 [US3] Connect MobileToggle into the header or layout so it appears only on small viewports using responsive classes in src/app/layout.tsx
+- [X] T031 [US3] Implement a mobile sidebar presentation using framer-motion to slide in/out from the left with ≤200ms animation, coordinated with showing/hiding the dimming overlay in src/components/Sidebar/Sidebar.tsx
+- [X] T032 [US3] Implement a semi-transparent dimming overlay behind the sidebar that covers the rest of the content and closes the sidebar when tapped on mobile in src/components/Sidebar/Overlay.tsx
+- [X] T033 [US3] Ensure sidebar automatically closes on mobile after a folder is selected while keeping the selected folder’s articles visible in src/components/Sidebar/Sidebar.tsx
+- [X] T034 [US3] Ensure sidebar is always visible on desktop (ignoring isOpen) and transitions correctly when resizing between mobile and desktop breakpoints in src/components/Sidebar/Sidebar.tsx
+- [X] T035 [US3] Add Escape key handler to close the sidebar on mobile while preserving normal keyboard navigation in src/components/Sidebar/Sidebar.tsx
 
 **Checkpoint**: User Story 3 complete—sidebar responsive behavior validated independently on small screens.
 
@@ -131,16 +131,16 @@ description: "Tasks for implementing sidebar navigation and design language upda
 
 ### Tests & Checks for User Story 4 (Right-Sized)
 
-- [ ] T036 [P] [US4] Add or update Playwright visual regression tests capturing desktop and mobile sidebar states, including hover/focus states, in tests/e2e/sidebar-visual.spec.ts
-- [ ] T037 [P] [US4] Run accessibility checks (axe or similar) for color contrast and keyboard navigation on timeline + sidebar pages and capture issues list in tests/e2e/accessibility/sidebar-accessibility.spec.ts
+- [X] T036 [P] [US4] Add or update Playwright visual regression tests capturing desktop and mobile sidebar states, including hover/focus states, in tests/e2e/sidebar-visual.spec.ts
+- [X] T037 [P] [US4] Run accessibility checks (axe or similar) for color contrast and keyboard navigation on timeline + sidebar pages and capture issues list in tests/e2e/accessibility/sidebar-accessibility.spec.ts
 
 ### Implementation for User Story 4
 
-- [ ] T038 [P] [US4] Apply dark theme tokens to sidebar background, surface areas, text, and borders using CSS variables in src/styles/tokens.css
-- [ ] T039 [US4] Update Sidebar, FolderList, and FolderItem components to use Tailwind classes wired to the new design tokens for colors, spacing, and radii in src/components/Sidebar/Sidebar.tsx and src/components/Sidebar/FolderList.tsx and src/components/Sidebar/FolderItem.tsx
-- [ ] T040 [US4] Update article list and cards in the main timeline view to use consistent dark-theme tokens and spacing in src/app/timeline/page.tsx
-- [ ] T041 [US4] Implement consistent hover and focus treatments for sidebar items and primary buttons using outline and background styles in src/components/Sidebar/FolderItem.tsx and src/styles/sidebar.css
-- [ ] T042 [US4] Ensure typography scale and font stack match specification for body, headings, and captions in src/styles/globals.css
+- [X] T038 [P] [US4] Apply dark theme tokens to sidebar background, surface areas, text, and borders using CSS variables in src/styles/tokens.css
+- [X] T039 [US4] Update Sidebar, FolderList, and FolderItem components to use Tailwind classes wired to the new design tokens for colors, spacing, and radii in src/components/Sidebar/Sidebar.tsx and src/components/Sidebar/FolderList.tsx and src/components/Sidebar/FolderItem.tsx
+- [X] T040 [US4] Update article list and cards in the main timeline view to use consistent dark-theme tokens and spacing in src/app/timeline/page.tsx
+- [X] T041 [US4] Implement consistent hover and focus treatments for sidebar items and primary buttons using outline and background styles in src/components/Sidebar/FolderItem.tsx and src/styles/sidebar.css
+- [X] T042 [US4] Ensure typography scale and font stack match specification for body, headings, and captions in src/styles/globals.css
 
 **Checkpoint**: User Story 4 complete—visual design language updated and validated independently.
 

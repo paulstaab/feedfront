@@ -27,7 +27,15 @@ export function MarkAllReadButton({ onMarkAllRead, disabled }: MarkAllReadButton
       onClick={() => {
         void handleClick();
       }}
-      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed shadow-sm transition-colors"
+      className={`
+        inline-flex items-center justify-center gap-2 px-5 py-2.5
+        rounded-full bg-accent text-white text-sm font-medium
+        hover:bg-accent-strong
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface
+        disabled:opacity-60 disabled:cursor-not-allowed
+        shadow-md transition-all duration-fast
+        active:scale-[0.98]
+      `}
       disabled={isMarkingRead || disabled}
     >
       {isMarkingRead && (
@@ -36,7 +44,7 @@ export function MarkAllReadButton({ onMarkAllRead, disabled }: MarkAllReadButton
           aria-hidden
         />
       )}
-      {isMarkingRead ? 'Marking…' : 'Mark All as Read'}
+      <span className="text-white">✓</span> {isMarkingRead ? 'Marking…' : 'Mark All as Read'}
     </button>
   );
 }

@@ -1,14 +1,47 @@
 :root {
   /* Color tokens stored as HSL for easy opacity manipulation */
-  --color-surface: 220 20% 10%;
-  --color-surface-muted: 220 14% 16%;
-  --color-bg-surface: 220 20% 10%;
-  --color-bg-primary: 220 18% 8%;
-  --color-accent: 199 89% 48%;
-  --color-accent-strong: 199 100% 62%;
-  --color-text: 210 40% 98%;
-  --color-text-muted: 218 17% 65%;
-  --color-border: 217 16% 24%;
+  /* Dark theme palette matching mockup design */
+  --color-surface: 222 25% 10%; /* Main content background - deep navy */
+  --color-surface-muted: 222 22% 14%; /* Slightly elevated surfaces */
+  --color-surface-elevated: 220 20% 24%; /* Card backgrounds - clearly visible */
+  --color-bg-surface: 222 25% 10%; /* Content area background */
+  --color-bg-primary: 222 28% 8%; /* Sidebar/primary background - darker navy */
+  --color-bg-sidebar: 222 30% 12%; /* Sidebar specific background */
+
+  /* Accent colors - blue primary */
+  --color-accent: 217 91% 60%; /* Primary blue for badges, selections */
+  --color-accent-strong: 217 91% 65%; /* Brighter blue for hover states */
+  --color-accent-muted: 217 91% 55%; /* Slightly muted for borders */
+
+  /* Text colors */
+  --color-text: 210 40% 98%; /* Primary text - near white */
+  --color-text-muted: 215 20% 65%; /* Secondary text - gray */
+  --color-text-subtle: 215 15% 50%; /* Tertiary text - dimmer gray */
+
+  /* Border colors */
+  --color-border: 220 16% 22%; /* Default borders */
+  --color-border-subtle: 220 14% 18%; /* Subtle dividers */
+
+  /* Semantic colors */
+  --color-success: 142 71% 45%; /* Green for success states */
+  --color-warning: 38 92% 50%; /* Yellow/orange for warnings */
+  --color-error: 0 84% 60%; /* Red for errors */
+
+  /* Sidebar specific tokens */
+  --sidebar-width: 240px;
+  --sidebar-bg: var(--color-bg-sidebar);
+  --sidebar-border: var(--color-border-subtle);
+  --sidebar-item-height: 44px;
+  --sidebar-item-padding: 12px 16px;
+  --sidebar-item-bg-hover: 222 20% 16%;
+  --sidebar-item-bg-selected: var(--color-accent);
+
+  /* Badge tokens */
+  --badge-bg: var(--color-accent);
+  --badge-text: 0 0% 100%;
+  --badge-radius: 9999px;
+  --badge-padding: 2px 10px;
+  --badge-font-size: 0.75rem;
 
   /* Spacing scale in multiples of 4 */
   --space-1: 0.25rem;
@@ -35,29 +68,60 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
 
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
   /* Radii */
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-full: 9999px;
 
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
-  --shadow-md: 0 8px 24px rgba(14, 21, 47, 0.35);
-  --shadow-lg: 0 20px 45px rgba(10, 16, 34, 0.45);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 45px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
+    /* Light theme - keeping for future implementation but dark is default */
     --color-surface: 214 32% 96%;
     --color-surface-muted: 214 30% 92%;
+    --color-surface-elevated: 214 28% 98%;
     --color-bg-surface: 214 32% 96%;
     --color-bg-primary: 214 30% 94%;
-    --color-accent: 213 94% 34%;
-    --color-accent-strong: 210 92% 50%;
+    --color-bg-sidebar: 214 32% 92%;
+    --color-accent: 217 91% 50%;
+    --color-accent-strong: 217 91% 55%;
+    --color-accent-muted: 217 91% 45%;
     --color-text: 224 33% 12%;
     --color-text-muted: 225 12% 44%;
+    --color-text-subtle: 225 10% 55%;
     --color-border: 220 14% 85%;
+    --color-border-subtle: 220 12% 90%;
+    --sidebar-item-bg-hover: 214 28% 88%;
   }
+}
+
+/* Force dark theme as per spec (light theme out of scope) */
+:root {
+  color-scheme: dark;
 }

@@ -26,7 +26,7 @@ describe('UnreadBadge', () => {
   it('applies correct styling for circular badge', () => {
     render(<UnreadBadge count={5} />);
     const badge = screen.getByText('5');
-    expect(badge).toHaveClass('bg-primary');
+    expect(badge).toHaveClass('bg-accent');
     expect(badge).toHaveClass('text-white');
     expect(badge).toHaveClass('rounded-full');
   });

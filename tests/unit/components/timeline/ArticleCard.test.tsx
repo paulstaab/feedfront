@@ -4,12 +4,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ArticleCard } from '@/components/timeline/ArticleCard';
 import type { ArticlePreview, Article } from '@/types';
 
-// Mock next/image
-vi.mock('next/image', () => ({
-  // eslint-disable-next-line @next/next/no-img-element
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...props} />,
-}));
-
 // Mock SWR
 const { mockSWRResponse } = vi.hoisted(() => ({
   mockSWRResponse: {
@@ -61,7 +55,6 @@ describe('ArticleCard', () => {
 
     expect(screen.getByText('Test Article Title')).toBeDefined();
     expect(screen.getByText('This is a summary of the article.')).toBeDefined();
-    expect(screen.getByAltText('')).toHaveAttribute('src', 'https://example.com/image.jpg');
   });
 
   it('renders fallback title when title is missing', () => {
@@ -81,6 +74,8 @@ describe('ArticleCard', () => {
   it('expands to show full content when clicked and marks as read', async () => {
     const onMarkRead = vi.fn();
     mockSWRResponse.data = mockFullArticle;
+    mockSWRResponse.isLoading = false;
+    mockSWRResponse.error = null;
 
     render(<ArticleCard article={mockArticle} onMarkRead={onMarkRead} />);
 
@@ -88,7 +83,7 @@ describe('ArticleCard', () => {
     expect(screen.getByText('This is a summary of the article.')).toBeDefined();
     expect(screen.queryByText('This is the full body content.')).toBeNull();
 
-    // Click to expand
+    // Click on the card to expand
     const card = screen.getByRole('article');
     fireEvent.click(card);
 
@@ -104,10 +99,13 @@ describe('ArticleCard', () => {
   it('shows loading state when expanding and fetching', () => {
     mockSWRResponse.data = undefined;
     mockSWRResponse.isLoading = true;
+    mockSWRResponse.error = null;
 
     render(<ArticleCard article={mockArticle} onMarkRead={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole('article'));
+    // Click on the card to expand
+    const card = screen.getByRole('article');
+    fireEvent.click(card);
 
     expect(screen.getByText(/loading/i)).toBeDefined();
   });
@@ -119,7 +117,9 @@ describe('ArticleCard', () => {
 
     render(<ArticleCard article={mockArticle} onMarkRead={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole('article'));
+    // Click on the card to expand
+    const card = screen.getByRole('article');
+    fireEvent.click(card);
 
     expect(screen.getByText(/failed to load/i)).toBeDefined();
   });

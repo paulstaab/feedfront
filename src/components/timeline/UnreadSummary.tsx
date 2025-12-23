@@ -18,9 +18,9 @@ export function UnreadSummary({
 }: UnreadSummaryProps) {
   if (totalUnread === 0) {
     return (
-      <div className={`flex items-center gap-2 text-sm text-gray-600 ${className}`}>
+      <div className={`flex items-center gap-2 text-sm text-text-muted ${className}`}>
         <svg
-          className="w-5 h-5 text-green-500"
+          className="w-5 h-5 text-success"
           fill="none"
           strokeWidth="2"
           stroke="currentColor"
@@ -35,13 +35,13 @@ export function UnreadSummary({
 
   return (
     <div className={`flex flex-col gap-1 text-sm ${className}`}>
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full">
-        <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
-        <span className="text-sm font-medium text-blue-900">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-full">
+        <span className="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+        <span className="text-sm font-medium text-accent">
           {totalUnread} unread across timeline
         </span>
       </div>
-      <div className="text-gray-600">
+      <div className="text-text-muted">
         {activeFolderUnread} in focus · {remainingFolders} folder{remainingFolders === 1 ? '' : 's'}{' '}
         queued
       </div>

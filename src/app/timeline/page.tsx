@@ -4,11 +4,10 @@ import { Suspense, useEffect, useLayoutEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useFolderQueue } from '@/hooks/useFolderQueue';
-import { UnreadSummary } from '@/components/timeline/UnreadSummary';
 import { FolderStepper } from '@/components/timeline/FolderStepper';
 import { TimelineList } from '@/components/timeline/TimelineList';
-import { MarkAllReadButton } from '@/components/timeline/MarkAllReadButton';
 import { EmptyState } from '@/components/timeline/EmptyState';
+import { MarkAllReadButton } from '@/components/timeline/MarkAllReadButton';
 import { RequestStateToast, useToast } from '@/components/ui/RequestStateToast';
 import { Sidebar } from '@/components/Sidebar/Sidebar';
 import { MobileToggle } from '@/components/Sidebar/MobileToggle';
@@ -114,9 +113,9 @@ function TimelineContent() {
   // Show loading state while checking authentication
   if (isInitializing || !isHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="inline-flex items-center gap-3 text-gray-600">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="inline-flex items-center gap-3 text-text-muted">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-border border-t-accent"></div>
           <span>Loading...</span>
         </div>
       </div>
@@ -147,27 +146,32 @@ function TimelineContent() {
       <Sidebar folders={queue} selectedFolderId={activeFolder?.id} onSelectFolder={selectFolder} />
 
       {/* Main content */}
-      <main className="flex-1 min-w-0">
+      <main className="flex-1 min-w-0 overflow-x-hidden">
         {/* Header */}
-        <header className="bg-bg-primary border-b border-border sticky top-0 z-60">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
+        <header className="sticky top-0 z-10 pt-4 sm:pt-6 bg-surface">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 {!isDesktop && <MobileToggle />}
-                <h1 className="text-2xl font-bold text-text">Timeline</h1>
+                <div className="flex items-baseline gap-3">
+                  <h1 className="text-xl sm:text-2xl font-bold text-text">
+                    {activeFolder?.name ?? 'Timeline'}
+                  </h1>
+                  {activeFolder && (
+                    <span className="text-text-muted text-sm">({activeFolderUnread} Unread)</span>
+                  )}
+                </div>
               </div>
 
-              {/* Unread summary */}
-              <UnreadSummary
-                totalUnread={totalUnread}
-                activeFolderUnread={activeFolderUnread}
-                remainingFolders={remainingFolders}
-              />
+              {/* Total count */}
+              <div className="text-text-muted text-sm">
+                {totalUnread > 0 ? `${String(totalUnread)} total` : 'All caught up!'}
+              </div>
             </div>
           </div>
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
           <FolderStepper
             activeFolder={activeFolder}
             remainingFolders={remainingFolders}
@@ -203,23 +207,24 @@ function TimelineContent() {
               }
             />
           ) : (
-            <TimelineList
-              items={activeArticles}
-              isLoading={isUpdating && activeArticles.length === 0}
-              emptyMessage={`No unread articles left in ${activeFolder.name}.`}
-              onMarkRead={(id) => {
-                void markItemRead(id);
-              }}
-            />
-          )}
-
-          {activeFolder && activeFolderUnread > 0 && (
-            <div className="mt-6 flex justify-end">
-              <MarkAllReadButton
-                onMarkAllRead={() => markFolderRead(activeFolder.id)}
-                disabled={isUpdating}
+            <>
+              <TimelineList
+                items={activeArticles}
+                isLoading={isUpdating && activeArticles.length === 0}
+                emptyMessage={`No unread articles left in ${activeFolder.name}.`}
+                onMarkRead={(id) => {
+                  void markItemRead(id);
+                }}
               />
-            </div>
+              {activeFolderUnread > 0 && (
+                <div className="flex justify-center mt-8">
+                  <MarkAllReadButton
+                    onMarkAllRead={() => markFolderRead(activeFolder.id)}
+                    disabled={isUpdating}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -246,10 +251,10 @@ export default function TimelinePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-surface flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading timeline...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-2 border-border border-t-accent mb-4"></div>
+            <p className="text-text-muted">Loading timeline...</p>
           </div>
         </div>
       }

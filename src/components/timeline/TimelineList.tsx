@@ -17,8 +17,8 @@ export function TimelineList({ items, isLoading, emptyMessage, onMarkRead }: Tim
   if (isLoading && items.length === 0) {
     return (
       <div className="py-10 text-center">
-        <div className="inline-flex items-center gap-3 text-gray-600">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <div className="inline-flex items-center gap-3 text-text-muted">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-border border-t-accent"></div>
           <span>Loading articles...</span>
         </div>
       </div>
@@ -27,14 +27,14 @@ export function TimelineList({ items, isLoading, emptyMessage, onMarkRead }: Tim
 
   if (items.length === 0) {
     return (
-      <div className="bg-white border border-dashed border-gray-300 rounded-lg p-10 text-center text-gray-500">
+      <div className="bg-surface-muted border border-dashed border-border rounded-xl p-10 text-center text-text-muted">
         {emptyMessage ?? 'No unread articles in this folder.'}
       </div>
     );
   }
 
   return (
-    <div data-testid="article-list" className="space-y-4">
+    <div data-testid="article-list">
       {items.map((article) => (
         <ArticleCard key={article.id} article={article} onMarkRead={onMarkRead} />
       ))}

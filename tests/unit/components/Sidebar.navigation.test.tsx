@@ -86,7 +86,9 @@ describe('Sidebar Navigation', () => {
     render(<Sidebar folders={mockFolders} selectedFolderId={1} onSelectFolder={onSelectFolder} />);
 
     const techNewsItem = screen.getByText('Tech News');
-    expect(techNewsItem.parentElement).toHaveClass('bg-accent'); // Assuming selected styling
+    // The button is the great-grandparent: span (text) -> span (with icon) -> button
+    const button = techNewsItem.closest('button');
+    expect(button).toHaveClass('bg-accent'); // Selected styling
   });
 
   it('calls onSelectFolder when clicking a folder', () => {
@@ -115,6 +117,7 @@ describe('Sidebar Navigation', () => {
     // This might be handled by initial selection logic
     // For now, assume it renders with first as selected
     const techNewsItem = screen.getByText('Tech News');
-    expect(techNewsItem.parentElement).toHaveClass('bg-accent');
+    const button = techNewsItem.closest('button');
+    expect(button).toHaveClass('bg-accent');
   });
 });

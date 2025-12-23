@@ -13,9 +13,9 @@ export function FolderList({ folders, selectedFolderId, onSelectFolder }: Folder
 
   return (
     <nav aria-label="Folder navigation">
-      <ul className="space-y-1 p-2">
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {sortedFolders.map((folder) => (
-          <li key={folder.id}>
+          <li key={folder.id} style={{ marginBottom: '4px' }}>
             <FolderItem
               folder={folder}
               isSelected={folder.id === selectedFolderId}
