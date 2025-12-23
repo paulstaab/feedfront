@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "npm run format && npm run lint:fix && npm run typecheck",
+      "problemMatcher": []
+    },
+    {
+      "label": "Execute Unit Tests",
+      "type": "shell",
+      "command": "npm run test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Execute E2E Tests",
+      "type": "shell",
+      "command": "npx playwright test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Serve",
+      "type": "shell",
+      "command": "npm run dev",
+      "problemMatcher": []
+    }
+  ]
+}

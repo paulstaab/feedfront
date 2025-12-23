@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report
-- Version: 1.3.0 → 2.0.0
-- Modified Principles: Remaining principles renumbered after removing VI. Performance Guardrails
-- Added Sections: None
-- Removed Sections: Core Principle VI. Performance Guardrails
-- Templates Updated: ✅ .specify/templates/plan-template.md (gates realigned), ✅ .specify/templates/tasks-template.md (references removed)
+- Version: 2.0.0 → 2.1.0
+- Modified Principles: None
+- Added Sections: Core Principle VI. Unread-Only Focus
+- Removed Sections: None
+- Templates Updated: ✅ .specify/templates/plan-template.md (new gate added), ✅ .specify/templates/tasks-template.md (guidance updated), ✅ .specify/templates/spec-template.md (no changes needed)
 - Follow-ups: None
 -->
 
@@ -32,9 +32,19 @@ Verification MUST exist, but it must match risk—not bureaucracy.
 - Add or update automated tests before merge whenever behavior could regress silently (data fetching, mutations, auth, routing, caching, or accessibility logic).
 - Manual smoke tests are acceptable for copy or purely presentational tweaks; describe the manual check in the PR instead of capturing video evidence.
 - No change may merge if regressions would only be caught by users later; if automation is impractical, explain why and provide the lightweight checklist that was executed.
+- Unit tests should cover positive and negative cases. E2E should focus on the most important user journeys along the happy path.
 
 ### V. Experience Consistency
 UI work MUST use the shared design tokens, typography scale, and spacing system, remain responsive between 320px and 1440px, and meet WCAG 2.1 AA contrast and keyboard navigation rules.
+
+### VI. Unread-Only Focus
+The application MUST exclusively work with unread articles; read articles have no place in the user experience or persistence layer.
+- The application MUST NOT load, fetch, or display articles marked as read.
+- Articles MUST be removed from local storage, cache, and all in-memory state immediately upon being marked as read.
+- API queries MUST explicitly filter for unread status when possible; prefetching or background sync operations MUST NOT retrieve read articles.
+- UI components MUST NOT render read article data, even during transitions or animations.
+
+**Rationale**: Feedfront exists to surface unread content efficiently. Retaining read articles wastes storage, complicates state management, and risks surfacing stale content. Immediate eviction on read ensures the solo operator's limited storage and cognitive bandwidth stay focused on actionable items.
 
 
 ## Delivery Constraints
@@ -46,8 +56,8 @@ UI work MUST use the shared design tokens, typography scale, and spacing system,
 
 ## Workflow & Quality Gates
 
-1. **Plan**: Before Phase 0 research, document how the work satisfies every gate (Simplicity, Code Quality, Static Delivery, Right-Sized Tests, Experience) and call out any proposed exceptions with an RFC link.
+1. **Plan**: Before Phase 0 research, document how the work satisfies every gate (Simplicity, Code Quality, Static Delivery, Right-Sized Tests, Experience, Unread-Only Focus) and call out any proposed exceptions with an RFC link.
 2. **Spec**: User stories must include UX acceptance criteria and describe the verification approach (automated or manual) expected for each flow.
 3. **Tasks**: Each user story receives implementation tasks plus right-sized verification tasks so reviewers can see exactly what proof will accompany the change.
 
-**Version**: 2.0.0 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-13
+**Version**: 2.1.0 | **Ratified**: 2025-12-12 | **Last Amended**: 2025-12-23

@@ -13,11 +13,26 @@ export type { Feed, ApiFeed, FeedsResponse } from './feed';
 export { normalizeFeed } from './feed';
 
 // Folder entity
-export type { Folder, ApiFolder, FoldersResponse } from './folder';
+export type {
+  Folder,
+  ApiFolder,
+  FoldersResponse,
+  FolderQueueEntry,
+  FolderQueueStatus,
+  FolderProgressState,
+  TimelineCacheEnvelope,
+  MarkActionPayload,
+} from './folder';
 export { normalizeFolder, UNCATEGORIZED_FOLDER_ID } from './folder';
 
 // Article entity
-export type { Article, ApiArticle, ItemsResponse, ItemsQueryParams } from './article';
+export type {
+  Article,
+  ApiArticle,
+  ItemsResponse,
+  ItemsQueryParams,
+  ArticlePreview,
+} from './article';
 export { normalizeArticle, ItemFilterType } from './article';
 
 // Mutation queue

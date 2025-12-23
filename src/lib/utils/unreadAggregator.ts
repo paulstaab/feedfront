@@ -4,8 +4,21 @@
  * Aligned with FR-005: Unread Management.
  */
 
-import type { Article, Feed, Folder } from '@/types';
+import type {
+  Article,
+  Feed,
+  Folder,
+  ArticlePreview,
+  FolderQueueEntry,
+  FolderProgressState,
+} from '@/types';
 import { UNCATEGORIZED_FOLDER_ID } from '@/types';
+import { CONFIG } from '@/lib/config/env';
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_MAX_ITEMS = CONFIG.TIMELINE_MAX_ITEMS_PER_FOLDER;
+const DEFAULT_MAX_AGE_MS = CONFIG.TIMELINE_MAX_ITEM_AGE_DAYS * DAY_IN_MS;
+const folderNameCollator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
 
 /**
  * Counts unread articles per feed.
@@ -168,4 +181,165 @@ export function filterUnreadArticles(articles: Article[]): Article[] {
  */
 export function filterStarredArticles(articles: Article[]): Article[] {
   return articles.filter((a) => a.starred);
+}
+
+export interface ArticlePruneOptions {
+  now?: number;
+  maxItems?: number;
+  maxAgeMs?: number;
+}
+
+function getPreviewTimestamp(article: ArticlePreview): number {
+  const pubDateMs = article.pubDate ? article.pubDate * 1000 : 0;
+  return article.storedAt ?? pubDateMs;
+}
+
+/**
+ * Applies retention rules to cached article previews (max age + max count).
+ */
+export function pruneArticlePreviews(
+  articles: ArticlePreview[],
+  options: ArticlePruneOptions = {},
+): ArticlePreview[] {
+  if (articles.length === 0) return [];
+
+  const now = options.now ?? Date.now();
+  const maxItems = options.maxItems ?? DEFAULT_MAX_ITEMS;
+  const maxAgeMs = options.maxAgeMs ?? DEFAULT_MAX_AGE_MS;
+  const cutoff = now - maxAgeMs;
+
+  const sorted = [...articles].sort((a, b) => getPreviewTimestamp(b) - getPreviewTimestamp(a));
+  const filteredByAge = sorted.filter((article) => getPreviewTimestamp(article) >= cutoff);
+
+  return filteredByAge.slice(0, maxItems).map((article) => ({
+    ...article,
+    storedAt: article.storedAt ?? now,
+  }));
+}
+
+export function groupArticlesByFolder(articles: ArticlePreview[]): Map<number, ArticlePreview[]> {
+  const grouped = new Map<number, ArticlePreview[]>();
+
+  for (const article of articles) {
+    const folderId = Number.isFinite(article.folderId) ? article.folderId : UNCATEGORIZED_FOLDER_ID;
+    const bucket = grouped.get(folderId) ?? [];
+    bucket.push(article);
+    grouped.set(folderId, bucket);
+  }
+
+  return grouped;
+}
+
+export function sortFolderQueueEntries(entries: FolderQueueEntry[]): FolderQueueEntry[] {
+  const sorted = [...entries].sort((a, b) => {
+    // 1. Status: 'skipped' goes to the bottom
+    if (a.status === 'skipped' && b.status !== 'skipped') return 1;
+    if (a.status !== 'skipped' && b.status === 'skipped') return -1;
+
+    // 2. Unread count (descending)
+    if (b.unreadCount !== a.unreadCount) {
+      return b.unreadCount - a.unreadCount;
+    }
+
+    // 3. Name (ascending)
+    const nameComparison = folderNameCollator.compare(a.name, b.name);
+    if (nameComparison !== 0) {
+      return nameComparison;
+    }
+
+    // 4. ID (ascending)
+    return a.id - b.id;
+  });
+
+  return sorted.map((entry, index) => ({
+    ...entry,
+    sortOrder: index,
+  }));
+}
+
+function countUnreadPreviews(articles: ArticlePreview[]): number {
+  return articles.filter((article) => article.unread).length;
+}
+
+export interface FolderQueueBuildOptions extends ArticlePruneOptions {
+  existingEntries?: Record<number, FolderQueueEntry>;
+}
+
+/**
+ * Builds a sorted folder queue from article previews + folder metadata.
+ */
+export function buildFolderQueueFromArticles(
+  folders: Folder[],
+  articles: ArticlePreview[],
+  options: FolderQueueBuildOptions = {},
+): FolderQueueEntry[] {
+  if (articles.length === 0) {
+    return [];
+  }
+
+  const now = options.now ?? Date.now();
+  const grouped = groupArticlesByFolder(articles);
+  const folderNameMap = new Map<number, string>(folders.map((folder) => [folder.id, folder.name]));
+  const nextEntries: FolderQueueEntry[] = [];
+
+  for (const [folderId, previews] of grouped) {
+    const prunedArticles = pruneArticlePreviews(previews, { ...options, now });
+    const unreadCount = countUnreadPreviews(prunedArticles);
+
+    if (unreadCount === 0) continue;
+
+    const previous = options.existingEntries?.[folderId];
+    nextEntries.push({
+      id: folderId,
+      name:
+        folderNameMap.get(folderId) ??
+        previous?.name ??
+        (folderId === UNCATEGORIZED_FOLDER_ID ? 'Uncategorized' : `Folder ${String(folderId)}`),
+      sortOrder: previous?.sortOrder ?? 0,
+      status: previous?.status ?? 'queued',
+      unreadCount,
+      articles: prunedArticles,
+      lastUpdated: now,
+    });
+  }
+
+  return sortFolderQueueEntries(nextEntries);
+}
+
+/**
+ * Computes folder progression details for UI (current, next, remaining, all-viewed flag).
+ */
+export function deriveFolderProgress(
+  queue: FolderQueueEntry[],
+  activeFolderId: number | null,
+): FolderProgressState {
+  if (queue.length === 0) {
+    return {
+      currentFolderId: null,
+      nextFolderId: null,
+      remainingFolderIds: [],
+      allViewed: true,
+    };
+  }
+
+  const ordered = [...queue].sort((a, b) => a.sortOrder - b.sortOrder);
+  const matchingEntry = ordered.find((entry) => entry.id === activeFolderId);
+  const firstEntry = ordered[0];
+  // At this point, firstEntry must exist because we checked queue.length === 0 above
+  // Use matchingEntry if found, otherwise fall back to first entry (which is guaranteed to exist)
+  const currentEntry = matchingEntry ?? firstEntry;
+  const currentIndex = ordered.indexOf(currentEntry);
+  const remainingFolderIds =
+    currentIndex >= 0
+      ? ordered.slice(currentIndex + 1).map((entry) => entry.id)
+      : ordered.map((entry) => entry.id);
+  const nextFolderId = remainingFolderIds.length > 0 ? remainingFolderIds[0] : null;
+  const totalUnread = ordered.reduce((sum, entry) => sum + entry.unreadCount, 0);
+
+  return {
+    currentFolderId: currentEntry.id,
+    nextFolderId,
+    remainingFolderIds,
+    allViewed: totalUnread === 0,
+  };
 }

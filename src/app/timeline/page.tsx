@@ -1,12 +1,21 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useItems } from '@/hooks/useItems';
-import { TimelineList } from '@/components/timeline/TimelineList';
-import { EmptyState } from '@/components/timeline/EmptyState';
+import { useFolderQueue } from '@/hooks/useFolderQueue';
 import { UnreadSummary } from '@/components/timeline/UnreadSummary';
+import { FolderStepper } from '@/components/timeline/FolderStepper';
+import { TimelineList } from '@/components/timeline/TimelineList';
+import { MarkAllReadButton } from '@/components/timeline/MarkAllReadButton';
+import { EmptyState } from '@/components/timeline/EmptyState';
+import { RequestStateToast, useToast } from '@/components/ui/RequestStateToast';
+import {
+  markTimelineCacheLoadStart,
+  markTimelineCacheReady,
+  markTimelineUpdateStart,
+  markTimelineUpdateComplete,
+} from '@/lib/metrics/metricsClient';
 
 /**
  * Timeline page content component
@@ -14,52 +23,77 @@ import { UnreadSummary } from '@/components/timeline/UnreadSummary';
  */
 function TimelineContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { isAuthenticated, isInitializing } = useAuth();
 
-  // Get filter from URL or default to unread
-  const getReadParam = searchParams.get('getRead');
-  const showRead = getReadParam === 'true';
+  // Mark cache load start before hook initialization
+  useEffect(() => {
+    markTimelineCacheLoadStart();
+  }, []);
 
-  // Redirect to login if not authenticated (but wait for initialization to complete)
+  const {
+    activeFolder,
+    activeArticles,
+    progress,
+    totalUnread,
+    isHydrated,
+    isUpdating,
+    error,
+    refresh,
+    markFolderRead,
+    markItemRead,
+    skipFolder,
+    restart,
+    lastUpdateError,
+  } = useFolderQueue();
+
+  const { toasts, showToast, dismissToast } = useToast();
+
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) {
       router.push('/login');
     }
   }, [isAuthenticated, isInitializing, router]);
 
-  // Fetch items with infinite scroll
-  const { items, isLoading, isValidating, error, hasMore, loadMore, refresh } = useItems({
-    type: 3, // All feeds
-    getRead: showRead,
-    oldestFirst: false, // Newest first
-    batchSize: 50,
-    infiniteScroll: true,
-  });
+  // Mark cache ready after hydration
+  useEffect(() => {
+    if (isHydrated) {
+      markTimelineCacheReady();
+    }
+  }, [isHydrated]);
 
-  // Toggle between Unread and All
-  const handleToggleView = (showAllItems: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('getRead', showAllItems.toString());
-    router.push(`/timeline?${params.toString()}`);
-  };
+  // Automatic update on mount (US5 requirement)
+  useEffect(() => {
+    if (isHydrated && isAuthenticated) {
+      markTimelineUpdateStart();
+      // Trigger refresh to get latest articles and merge with cache
+      void refresh()
+        .then(() => {
+          markTimelineUpdateComplete();
+        })
+        .catch(() => {
+          // Error already logged and retried in useFolderQueue
+          // Just mark the update as complete (with error)
+          markTimelineUpdateComplete();
+        });
+    }
+    // Only run on mount when hydrated and authenticated
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated, isAuthenticated]);
 
-  // Handle mark read action
-  const handleMarkRead = (itemId: number) => {
-    // TODO: Implement mark read mutation
-    // This will be implemented in Phase 4 (US2)
-    console.log('Mark read:', itemId);
-  };
-
-  // Handle toggle star action
-  const handleToggleStar = (itemId: number, starred: boolean) => {
-    // TODO: Implement star mutation
-    // This will be implemented in Phase 4 (US2)
-    console.log('Toggle star:', itemId, starred);
-  };
+  // Show toast when update fails after all retries
+  useEffect(() => {
+    if (lastUpdateError) {
+      showToast({
+        title: 'Update Failed',
+        message: `Failed to update timeline: ${lastUpdateError}`,
+        type: 'error',
+        duration: 5000,
+      });
+    }
+  }, [lastUpdateError, showToast]);
 
   // Show loading state while checking authentication
-  if (isInitializing) {
+  if (isInitializing || !isHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="inline-flex items-center gap-3 text-gray-600">
@@ -74,15 +108,19 @@ function TimelineContent() {
     return null; // Will redirect
   }
 
-  // Determine empty state type
-  const getEmptyStateType = () => {
-    if (error) return 'error';
-    if (!showRead && items.length === 0) return 'no-unread';
-    if (items.length === 0) return 'no-items';
-    return null;
-  };
+  const activeFolderUnread = activeFolder?.unreadCount ?? 0;
+  const remainingFolders = progress.remainingFolderIds.length;
 
-  const emptyStateType = getEmptyStateType();
+  const showEmptyState = !activeFolder;
+
+  let emptyStateType: 'no-unread' | 'no-items' | 'offline' | 'error' | 'all-viewed' = 'no-unread';
+  if (error) {
+    emptyStateType = 'error';
+  } else if (totalUnread === 0) {
+    emptyStateType = 'no-unread';
+  } else {
+    emptyStateType = 'all-viewed';
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,71 +131,31 @@ function TimelineContent() {
             <h1 className="text-2xl font-bold text-gray-900">Timeline</h1>
 
             {/* Unread summary */}
-            <UnreadSummary items={items} />
-          </div>
-
-          {/* View toggle */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                handleToggleView(false);
-              }}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                !showRead ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              aria-pressed={!showRead}
-            >
-              Unread
-            </button>
-            <button
-              onClick={() => {
-                handleToggleView(true);
-              }}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                showRead ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              aria-pressed={showRead}
-            >
-              All
-            </button>
-
-            {/* Refresh button */}
-            <button
-              onClick={() => {
-                void refresh();
-              }}
-              disabled={isValidating}
-              className="ml-auto p-2 rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
-              aria-label="Refresh timeline"
-            >
-              <svg
-                className={`w-5 h-5 text-gray-700 ${isValidating ? 'animate-spin' : ''}`}
-                fill="none"
-                strokeWidth="2"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            <UnreadSummary
+              totalUnread={totalUnread}
+              activeFolderUnread={activeFolderUnread}
+              remainingFolders={remainingFolders}
+            />
           </div>
         </div>
       </header>
 
       {/* Main content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Initial loading state */}
-        {isLoading && items.length === 0 && (
-          <div className="flex items-center justify-center py-16">
-            <div className="inline-flex items-center gap-3 text-gray-600">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span>Loading articles...</span>
-            </div>
-          </div>
-        )}
+        <FolderStepper
+          activeFolder={activeFolder}
+          remainingFolders={remainingFolders}
+          onRefresh={() => {
+            markTimelineUpdateStart();
+            void refresh().then(() => {
+              markTimelineUpdateComplete();
+            });
+          }}
+          onSkip={(folderId) => skipFolder(folderId)}
+          isUpdating={isUpdating}
+        />
 
-        {/* Empty state */}
-        {emptyStateType && !isLoading && (
+        {showEmptyState ? (
           <EmptyState
             type={emptyStateType}
             action={
@@ -168,30 +166,41 @@ function TimelineContent() {
                       void refresh();
                     },
                   }
-                : emptyStateType === 'no-items'
+                : emptyStateType === 'all-viewed'
                   ? {
-                      label: 'Browse Feeds',
+                      label: 'Restart',
                       onClick: () => {
-                        router.push('/');
-                      }, // Will implement feed management in US3
+                        void restart();
+                      },
                     }
                   : undefined
             }
           />
-        )}
-
-        {/* Timeline list */}
-        {items.length > 0 && (
+        ) : (
           <TimelineList
-            items={items}
-            isLoading={isValidating}
-            hasMore={hasMore}
-            onLoadMore={loadMore}
-            onMarkRead={handleMarkRead}
-            onToggleStar={handleToggleStar}
+            items={activeArticles}
+            isLoading={isUpdating && activeArticles.length === 0}
+            emptyMessage={`No unread articles left in ${activeFolder.name}.`}
+            onMarkRead={(id) => {
+              void markItemRead(id);
+            }}
           />
         )}
+
+        {activeFolder && activeFolderUnread > 0 && (
+          <div className="mt-6 flex justify-end">
+            <MarkAllReadButton
+              onMarkAllRead={() => markFolderRead(activeFolder.id)}
+              disabled={isUpdating}
+            />
+          </div>
+        )}
       </main>
+
+      {/* Toast notifications for errors */}
+      {toasts.map((toast) => (
+        <RequestStateToast key={toast.id} message={toast} onDismiss={dismissToast} />
+      ))}
     </div>
   );
 }

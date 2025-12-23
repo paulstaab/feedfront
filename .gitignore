@@ -25,7 +25,6 @@ pnpm-debug.log*
 !.env.example
 
 # Editor and OS noise
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
@@ -37,3 +36,4 @@ Thumbs.db
 
 *.tsbuildinfo
 tsconfig.tsbuildinfo
+next-env.d.ts

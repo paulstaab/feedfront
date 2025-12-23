@@ -7,9 +7,11 @@ import { setupApiMocks, setupUnreachableServer, setupInvalidApiPath } from './mo
  * Tests the complete flow:
  * 1. Login wizard with URL/credential validation
  * 2. Timeline rendering with unread items
- * 3. Unread ↔ All toggle
- * 4. Infinite scroll and pagination
- * 5. Offline indicator behavior
+ * 3. Infinite scroll and pagination
+ * 4. Offline indicator behavior
+ *
+ * Note: Per Core Principle VI (Unread-Only Focus), the app exclusively works
+ * with unread articles. There is no "view all" or "show read" functionality.
  */
 
 const TEST_SERVER_URL = 'https://rss.example.com';
@@ -250,27 +252,6 @@ test.describe('US1: Login and Timeline', () => {
     test('should show unread count summary', async ({ page }) => {
       // Should display aggregate unread count
       await expect(page.getByText(/\d+\s+(unread|new)/i)).toBeVisible();
-    });
-
-    test('should toggle between Unread and All views', async ({ page }) => {
-      // Find the Unread/All toggle
-      const unreadToggle = page.getByRole('button', { name: /unread/i });
-      const allToggle = page.getByRole('button', { name: /all/i });
-
-      // Unread should be active by default
-      await expect(unreadToggle).toHaveAttribute('aria-pressed', 'true');
-
-      // Switch to All
-      await allToggle.click();
-      await expect(allToggle).toHaveAttribute('aria-pressed', 'true');
-
-      // URL should reflect the change
-      await expect(page).toHaveURL(/getRead=true/);
-
-      // Switch back to Unread
-      await unreadToggle.click();
-      await expect(unreadToggle).toHaveAttribute('aria-pressed', 'true');
-      await expect(page).toHaveURL(/getRead=false/);
     });
 
     test('should support infinite scroll', async ({ page }) => {

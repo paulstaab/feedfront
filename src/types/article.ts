@@ -26,6 +26,9 @@ export interface Article {
   /** Parent feed ID */
   feedId: number;
 
+  /** Parent folder ID derived from feed (null if uncategorized) */
+  folderId: number | null;
+
   /** Whether article has been read */
   unread: boolean;
 
@@ -58,6 +61,45 @@ export interface Article {
   rtl: boolean;
 }
 
+/** Lightweight article representation stored in the timeline cache */
+export interface ArticlePreview {
+  /** Unique item ID */
+  id: number;
+
+  /** Parent folder ID (UNCATEGORIZED_FOLDER_ID for root-level items) */
+  folderId: number;
+
+  /** Parent feed ID */
+  feedId: number;
+
+  /** Display title (fallback applied) */
+  title: string;
+
+  /** Plain-text summary used in cards */
+  summary: string;
+
+  /** Original article URL */
+  url: string;
+
+  /** Thumbnail URL (if available) */
+  thumbnailUrl: string | null;
+
+  /** Unix timestamp (seconds) of publication */
+  pubDate: number;
+
+  /** Whether the article is unread */
+  unread: boolean;
+
+  /** Whether the article is starred */
+  starred: boolean;
+
+  /** Whether the article has full-text content stored */
+  hasFullText: boolean;
+
+  /** Timestamp (ms) when the article was cached */
+  storedAt?: number;
+}
+
 /** Raw article object returned by the Nextcloud News API */
 export interface ApiArticle {
   id: number;
@@ -69,6 +111,7 @@ export interface ApiArticle {
   body: string | null;
   content: string | null;
   feedId: number;
+  folderId?: number | null;
   unread: boolean;
   starred: boolean;
   pubDate: number | null;
@@ -118,6 +161,7 @@ export function normalizeArticle(api: ApiArticle): Article {
     url: api.url ?? '',
     body: api.body ?? api.content ?? '',
     feedId: api.feedId,
+    folderId: api.folderId ?? null,
     unread: api.unread,
     starred: api.starred,
     pubDate: api.pubDate ?? 0,

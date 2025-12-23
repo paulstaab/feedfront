@@ -130,3 +130,11 @@ export function encodeCredentials(username: string, password: string): string {
 export function isAuthenticated(): boolean {
   return loadSession() !== null;
 }
+
+export {
+  createEmptyTimelineCache,
+  loadTimelineCache,
+  mergeItemsIntoCache,
+  pruneTimelineCache,
+  storeTimelineCache,
+} from './storage/timelineCache';

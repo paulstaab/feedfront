@@ -44,7 +44,7 @@ export const swrConfig: SWRConfiguration = {
   // Each API call uses its own credentials
 
   // Offline gating: don't fetch when offline
-  isPaused: () => !navigator.onLine,
+  isPaused: () => typeof navigator !== 'undefined' && !navigator.onLine,
 
   // Error handling
   onError: (error: unknown, key: string) => {
