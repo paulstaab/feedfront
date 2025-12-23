@@ -83,16 +83,16 @@ description: "Tasks for implementing sidebar navigation and design language upda
 
 ### Tests & Checks for User Story 2 (Right-Sized)
 
-- [ ] T020 [P] [US2] Add unit tests for unread badge rendering and 0/99+ formatting logic in tests/unit/components/Sidebar.unreadBadge.test.tsx
-- [ ] T021 [P] [US2] Extend navigation unit tests to cover hiding folders with unreadCount === 0 from the sidebar list and asserting folders are removed once all their articles are marked read in tests/unit/components/Sidebar.navigation.test.tsx
+- [X] T020 [P] [US2] Add unit tests for unread badge rendering and 0/99+ formatting logic in tests/unit/components/Sidebar.unreadBadge.test.tsx
+- [X] T021 [P] [US2] Extend navigation unit tests to cover hiding folders with unreadCount === 0 from the sidebar list and asserting folders are removed once all their articles are marked read in tests/unit/components/Sidebar.navigation.test.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement UnreadBadge component to render circular badge with primary blue background and white text in src/components/Sidebar/UnreadBadge.tsx
-- [ ] T023 [US2] Integrate UnreadBadge into FolderItem aligned to the right edge of each folder row in src/components/Sidebar/FolderItem.tsx
-- [ ] T024 [US2] Update FolderList rendering logic to ensure folders are ordered by existing queue priority from folder data in src/components/Sidebar/FolderList.tsx
-- [ ] T025 [US2] Ensure unread counts update in real time when articles are marked read or new articles arrive using existing timeline state in src/app/timeline/page.tsx
-- [ ] T026 [US2] Add tooltip support for truncated folder names so full names are visible on hover in src/components/Sidebar/FolderItem.tsx
+- [X] T022 [P] [US2] Implement UnreadBadge component to render circular badge with primary blue background and white text in src/components/Sidebar/UnreadBadge.tsx
+- [X] T023 [US2] Integrate UnreadBadge into FolderItem aligned to the right edge of each folder row in src/components/Sidebar/FolderItem.tsx
+- [X] T024 [US2] Update FolderList rendering logic to ensure folders are ordered by existing queue priority from folder data in src/components/Sidebar/FolderList.tsx
+- [X] T025 [US2] Ensure unread counts update in real time when articles are marked read or new articles arrive using existing timeline state in src/app/timeline/page.tsx
+- [X] T026 [US2] Add tooltip support for truncated folder names so full names are visible on hover in src/components/Sidebar/FolderItem.tsx
 
 **Checkpoint**: User Story 2 independently verifies unread-only visibility and badge feedback while building on User Story 1.
 

@@ -8,10 +8,13 @@ interface FolderListProps {
 }
 
 export function FolderList({ folders, selectedFolderId, onSelectFolder }: FolderListProps) {
+  // Sort folders by queue priority (sortOrder)
+  const sortedFolders = [...folders].sort((a, b) => a.sortOrder - b.sortOrder);
+
   return (
     <nav aria-label="Folder navigation">
       <ul className="space-y-1 p-2">
-        {folders.map((folder) => (
+        {sortedFolders.map((folder) => (
           <li key={folder.id}>
             <FolderItem
               folder={folder}

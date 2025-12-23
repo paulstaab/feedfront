@@ -33,7 +33,6 @@ function TimelineContent() {
   }, []);
 
   const {
-    folders,
     queue,
     activeFolder,
     activeArticles,

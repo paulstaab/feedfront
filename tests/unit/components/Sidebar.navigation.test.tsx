@@ -52,6 +52,31 @@ describe('Sidebar Navigation', () => {
     expect(screen.queryByText('Sports')).not.toBeInTheDocument();
   });
 
+  it('hides folders when their unreadCount becomes 0', () => {
+    const foldersWithZero: FolderQueueEntry[] = [
+      ...mockFolders,
+      {
+        id: 4,
+        name: 'Empty Folder',
+        unreadCount: 0,
+        articles: [],
+        sortOrder: 3,
+        status: 'queued',
+        lastUpdated: Date.now(),
+      },
+    ];
+    const onSelectFolder = vi.fn();
+
+    renderWithProvider(
+      <Sidebar folders={foldersWithZero} selectedFolderId={1} onSelectFolder={onSelectFolder} />,
+    );
+
+    expect(screen.getByText('Tech News')).toBeInTheDocument();
+    expect(screen.getByText('Politics')).toBeInTheDocument();
+    expect(screen.queryByText('Sports')).not.toBeInTheDocument();
+    expect(screen.queryByText('Empty Folder')).not.toBeInTheDocument();
+  });
+
   it('highlights the selected folder', () => {
     const onSelectFolder = vi.fn();
 
