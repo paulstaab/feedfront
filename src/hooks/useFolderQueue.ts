@@ -192,7 +192,7 @@ export function useFolderQueue(): UseFolderQueueResult {
       return envelope.folders[activeId];
     }
 
-    return sortedQueue.length > 0 ? sortedQueue[0] : null;
+    return sortedQueue.find((f) => f.status !== 'skipped') ?? null;
   }, [envelope.activeFolderId, envelope.folders, sortedQueue]);
 
   const progress = useMemo(() => {

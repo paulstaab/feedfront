@@ -5,7 +5,7 @@
  * Displays when the user is offline to provide feedback.
  */
 
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Props for the OfflineBanner component.
@@ -19,11 +19,13 @@ export interface OfflineBannerProps {
  * Hook to track online/offline status.
  */
 export function useOnlineStatus(): boolean {
-  // Start with actual navigator.onLine to avoid hydration mismatch
-  // Check if navigator exists (SSR safe)
-  const [isOnline, setIsOnline] = useState<boolean>(() =>
-    typeof navigator !== 'undefined' ? navigator.onLine : true,
-  );
+  // Use lazy initialization to set the initial state based on navigator.onLine
+  const [isOnline, setIsOnline] = useState(() => {
+    if (typeof navigator !== 'undefined') {
+      return navigator.onLine;
+    }
+    return true; // Default to true for SSR
+  });
 
   useEffect(() => {
     const handleOnline = () => {
@@ -52,16 +54,16 @@ export function OfflineBanner({
   message = 'You are currently offline. Some features may be unavailable.',
 }: OfflineBannerProps) {
   const isOnline = useOnlineStatus();
+  const [lastOnlineState, setLastOnlineState] = useState(true);
   const [dismissed, setDismissed] = useState(false);
 
   // Reset dismissed state when coming back online then going offline again
-
-  useLayoutEffect(() => {
+  if (isOnline !== lastOnlineState) {
+    setLastOnlineState(isOnline);
     if (isOnline) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDismissed(false);
     }
-  }, [isOnline]);
+  }
 
   // Don't render if online or dismissed
   if (isOnline || dismissed) {

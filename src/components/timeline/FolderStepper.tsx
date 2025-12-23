@@ -7,7 +7,6 @@ interface FolderStepperProps {
   activeFolder: FolderQueueEntry | null;
   remainingFolders: number;
   onRefresh: () => void;
-  onMarkAllRead?: (folderId: number) => Promise<void>;
   onSkip?: (folderId: number) => Promise<void>;
   isUpdating: boolean;
 }
@@ -16,11 +15,9 @@ export function FolderStepper({
   activeFolder,
   remainingFolders,
   onRefresh,
-  onMarkAllRead,
   onSkip,
   isUpdating,
 }: FolderStepperProps) {
-  const [isMarkingRead, setIsMarkingRead] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
   const unreadCount = activeFolder?.unreadCount ?? 0;
   const lastUpdatedLabel = activeFolder
@@ -33,19 +30,6 @@ export function FolderStepper({
     remainingFolders === 1
       ? '1 folder queued'
       : `${Number.isFinite(remainingFolders) ? remainingFolders.toLocaleString() : '0'} folders queued`;
-
-  const handleMarkAllRead = async () => {
-    if (!activeFolder || !onMarkAllRead) return;
-
-    setIsMarkingRead(true);
-    try {
-      await onMarkAllRead(activeFolder.id);
-    } catch (error) {
-      console.error('Failed to mark all as read:', error);
-    } finally {
-      setIsMarkingRead(false);
-    }
-  };
 
   const handleSkip = async () => {
     if (!activeFolder || !onSkip) return;
@@ -94,30 +78,13 @@ export function FolderStepper({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {activeFolder && unreadCount > 0 && onMarkAllRead && (
-            <button
-              onClick={() => {
-                void handleMarkAllRead();
-              }}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed"
-              disabled={isMarkingRead || isUpdating}
-            >
-              {isMarkingRead && (
-                <span
-                  className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-                  aria-hidden
-                />
-              )}
-              {isMarkingRead ? 'Marking…' : 'Mark All as Read'}
-            </button>
-          )}
           {activeFolder && onSkip && (
             <button
               onClick={() => {
                 void handleSkip();
               }}
               className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-70"
-              disabled={isMarkingRead || isSkipping || isUpdating}
+              disabled={isSkipping || isUpdating}
             >
               {isSkipping ? 'Skipping…' : 'Skip'}
             </button>

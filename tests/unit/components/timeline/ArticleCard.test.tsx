@@ -7,14 +7,14 @@ import type { ArticlePreview, Article } from '@/types';
 // Mock next/image
 vi.mock('next/image', () => ({
   // eslint-disable-next-line @next/next/no-img-element
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt="" {...props} />,
 }));
 
 // Mock SWR
 const { mockSWRResponse } = vi.hoisted(() => ({
   mockSWRResponse: {
-    data: undefined as Article | undefined,
-    error: null,
+    data: undefined as Article | null | undefined,
+    error: null as Error | null,
     isLoading: false,
   },
 }));
@@ -61,7 +61,7 @@ describe('ArticleCard', () => {
 
     expect(screen.getByText('Test Article Title')).toBeDefined();
     expect(screen.getByText('This is a summary of the article.')).toBeDefined();
-    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://example.com/image.jpg');
+    expect(screen.getByAltText('')).toHaveAttribute('src', 'https://example.com/image.jpg');
   });
 
   it('renders fallback title when title is missing', () => {

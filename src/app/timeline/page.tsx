@@ -7,6 +7,7 @@ import { useFolderQueue } from '@/hooks/useFolderQueue';
 import { UnreadSummary } from '@/components/timeline/UnreadSummary';
 import { FolderStepper } from '@/components/timeline/FolderStepper';
 import { TimelineList } from '@/components/timeline/TimelineList';
+import { MarkAllReadButton } from '@/components/timeline/MarkAllReadButton';
 import { EmptyState } from '@/components/timeline/EmptyState';
 import { RequestStateToast, useToast } from '@/components/ui/RequestStateToast';
 import {
@@ -150,7 +151,6 @@ function TimelineContent() {
               markTimelineUpdateComplete();
             });
           }}
-          onMarkAllRead={(folderId) => markFolderRead(folderId)}
           onSkip={(folderId) => skipFolder(folderId)}
           isUpdating={isUpdating}
         />
@@ -180,11 +180,20 @@ function TimelineContent() {
           <TimelineList
             items={activeArticles}
             isLoading={isUpdating && activeArticles.length === 0}
-            emptyMessage={`No unread articles left in ${activeFolder ? activeFolder.name : 'this folder'}.`}
+            emptyMessage={`No unread articles left in ${activeFolder.name}.`}
             onMarkRead={(id) => {
               void markItemRead(id);
             }}
           />
+        )}
+
+        {activeFolder && activeFolderUnread > 0 && (
+          <div className="mt-6 flex justify-end">
+            <MarkAllReadButton
+              onMarkAllRead={() => markFolderRead(activeFolder.id)}
+              disabled={isUpdating}
+            />
+          </div>
         )}
       </main>
 

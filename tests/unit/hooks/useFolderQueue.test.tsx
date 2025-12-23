@@ -184,7 +184,10 @@ describe('useFolderQueue', () => {
       { id: 10, name: 'Dev Updates', unreadCount: 0, feedIds: [] },
       { id: 20, name: 'Design Notes', unreadCount: 0, feedIds: [] },
     ];
-    mocks.feedsData.value = [buildFeed({ id: 1, folderId: 10 }), buildFeed({ id: 2, folderId: 20 })];
+    mocks.feedsData.value = [
+      buildFeed({ id: 1, folderId: 10 }),
+      buildFeed({ id: 2, folderId: 20 }),
+    ];
 
     mocks.useItemsResult.items = [
       buildArticle({ id: 1, feedId: 1, folderId: 10, title: 'Dev A' }),
@@ -249,7 +252,10 @@ describe('useFolderQueue', () => {
       { id: 10, name: 'Dev Updates', unreadCount: 0, feedIds: [] },
       { id: 20, name: 'Design Notes', unreadCount: 0, feedIds: [] },
     ];
-    mocks.feedsData.value = [buildFeed({ id: 1, folderId: 10 }), buildFeed({ id: 2, folderId: 20 })];
+    mocks.feedsData.value = [
+      buildFeed({ id: 1, folderId: 10 }),
+      buildFeed({ id: 2, folderId: 20 }),
+    ];
 
     mocks.useItemsResult.items = [
       buildArticle({ id: 1, feedId: 1, folderId: 10, title: 'Dev A' }),

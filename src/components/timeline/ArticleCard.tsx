@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import useSWR from 'swr';
 import { formatDistanceToNow } from 'date-fns';
-import type { ArticlePreview } from '@/types';
+import type { Article, ArticlePreview } from '@/types';
 import { getArticle } from '@/lib/api/items';
 
 interface ArticleCardProps {
@@ -25,7 +25,7 @@ export function ArticleCard({ article, onMarkRead }: ArticleCardProps) {
     data: fullArticle,
     error,
     isLoading,
-  } = useSWR(isExpanded ? `article-${String(article.id)}` : null, async () =>
+  } = useSWR<Article | null, Error>(isExpanded ? `article-${String(article.id)}` : null, async () =>
     getArticle(article.id),
   );
 
@@ -54,7 +54,6 @@ export function ArticleCard({ article, onMarkRead }: ArticleCardProps) {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="article"
-      aria-expanded={isExpanded}
       aria-label={`${article.title || 'Untitled article'}, ${
         article.unread ? 'unread' : 'read'
       }. Click to ${isExpanded ? 'collapse' : 'expand'}.`}

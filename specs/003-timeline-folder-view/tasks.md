@@ -127,8 +127,8 @@ Purpose: Core state, types, and hooks that every user story depends on. **All la
 Purpose: Final documentation, visual regression, and quality gates spanning all stories.
 
 - [X] T036 [P] Refresh docs/quickstart entries in specs/003-timeline-folder-view/quickstart.md and README.md with final workflow + troubleshooting notes.
-- [ ] T037 [P] Capture new Playwright visual baselines (tests/visual/timeline-folders.spec.ts) for folder header, mark-read, skip, update, and all-read states.
-- [ ] T038 Run `npm run lint && npm run test && npx playwright test tests/e2e/timeline-folders.spec.ts` to ensure lint/type/unit/e2e suites pass before release.
+- [X] T037 [P] Capture new Playwright visual baselines (tests/visual/timeline-folders.spec.ts) for folder header, mark-read, skip, update, and all-read states.
+- [X] T038 Run `npm run lint && npm run test && npx playwright test tests/e2e/timeline-folders.spec.ts` to ensure lint/type/unit/e2e suites pass before release.
 
 ---
 

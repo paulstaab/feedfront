@@ -8,9 +8,21 @@
       "problemMatcher": []
     },
     {
-      "label": "Run Tests",
+      "label": "Run Unit Tests",
       "type": "shell",
-      "command": "npm run test && npx playwright test",
+      "command": "npm run test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run E2E Tests",
+      "type": "shell",
+      "command": "npx playwright test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Serve",
+      "type": "shell",
+      "command": "npm run dev",
       "problemMatcher": []
     }
   ]

@@ -287,7 +287,6 @@ test.describe('Timeline update and persistence (US5)', () => {
     });
 
     await page.route(`${apiBase}/items**`, async (route) => {
-      updateCount++;
       await route.continue(); // Always return the same articles
     });
 
