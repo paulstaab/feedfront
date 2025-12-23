@@ -8,13 +8,13 @@
       "problemMatcher": []
     },
     {
-      "label": "Run Unit Tests",
+      "label": "Execute Unit Tests",
       "type": "shell",
       "command": "npm run test",
       "problemMatcher": []
     },
     {
-      "label": "Run E2E Tests",
+      "label": "Execute E2E Tests",
       "type": "shell",
       "command": "npx playwright test",
       "problemMatcher": []

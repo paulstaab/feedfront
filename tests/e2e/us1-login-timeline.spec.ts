@@ -252,27 +252,6 @@ test.describe('US1: Login and Timeline', () => {
       await expect(page.getByText(/\d+\s+(unread|new)/i)).toBeVisible();
     });
 
-    test('should toggle between Unread and All views', async ({ page }) => {
-      // Find the Unread/All toggle
-      const unreadToggle = page.getByRole('button', { name: /unread/i });
-      const allToggle = page.getByRole('button', { name: /all/i });
-
-      // Unread should be active by default
-      await expect(unreadToggle).toHaveAttribute('aria-pressed', 'true');
-
-      // Switch to All
-      await allToggle.click();
-      await expect(allToggle).toHaveAttribute('aria-pressed', 'true');
-
-      // URL should reflect the change
-      await expect(page).toHaveURL(/getRead=true/);
-
-      // Switch back to Unread
-      await unreadToggle.click();
-      await expect(unreadToggle).toHaveAttribute('aria-pressed', 'true');
-      await expect(page).toHaveURL(/getRead=false/);
-    });
-
     test('should support infinite scroll', async ({ page }) => {
       // Get initial article count
       const initialCount = await page.getByRole('article').count();

@@ -128,8 +128,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 9. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification
-   - Run all linting with `npm run format && npm run lint:fix && npm run typecheck` and check for zero errors
-   - Execute all unit and integration tests with `npm run test && npx playwright test` to ensure 100% pass rate
+   - Run all linting via the `Lint` task (takes about 1min) and check for zero errors
+   - Execute all unit via the `Execute Unit Tests` task (takes about 2min) to ensure 100% pass rate
+   - Execute all e2e tests with `Execute E2E Tests` (takes about 10min) to ensure 100% pass rate
    - Confirm documentation is updated as per plan.md
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
