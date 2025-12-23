@@ -1,0 +1,259 @@
+/**
+ * Sidebar-specific styles and hover/focus treatments
+ * Uses design tokens from tokens.css
+ */
+
+/* Desktop sidebar - hidden on mobile, visible on desktop */
+.desktop-sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 260px;
+    flex-shrink: 0;
+    height: calc(100vh - 2rem);
+    position: sticky;
+    top: 1rem;
+    margin: 1rem;
+    margin-right: 0;
+    background-color: hsl(220, 20%, 24%);
+    border-radius: 16px;
+  }
+}
+
+/* Sidebar container */
+.sidebar {
+  background-color: hsl(var(--color-bg-sidebar));
+  border-right: 1px solid hsl(var(--color-border-subtle));
+  width: var(--sidebar-width);
+}
+
+/* Sidebar header */
+.sidebar-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid hsl(var(--color-border-subtle));
+}
+
+.sidebar-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: hsl(var(--color-text));
+  margin: 0;
+}
+
+/* Folder list */
+.folder-list {
+  padding: var(--space-2);
+}
+
+/* Folder item base styles */
+.folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: transparent;
+  color: hsl(var(--color-text));
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* Folder item hover state */
+.folder-item:hover:not(.folder-item--selected) {
+  background-color: hsl(var(--sidebar-item-bg-hover));
+}
+
+/* Folder item selected state */
+.folder-item--selected {
+  background-color: hsl(var(--color-accent));
+  color: white;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Folder item focus state */
+.folder-item:focus-visible {
+  outline: 2px solid hsl(var(--color-accent-strong));
+  outline-offset: 2px;
+}
+
+/* Folder item active/pressed state */
+.folder-item:active {
+  transform: scale(0.98);
+}
+
+/* Folder name */
+.folder-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: var(--space-3);
+}
+
+/* Unread badge */
+.unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: var(--badge-padding);
+  font-size: var(--badge-font-size);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  color: hsl(var(--badge-text));
+  background-color: hsl(var(--color-accent));
+  border-radius: var(--badge-radius);
+  flex-shrink: 0;
+}
+
+/* Badge in selected folder - invert colors */
+.folder-item--selected .unread-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Mobile toggle button */
+.mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: hsl(var(--color-text));
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.mobile-toggle:hover {
+  background-color: hsl(var(--color-surface-muted));
+}
+
+.mobile-toggle:focus-visible {
+  outline: 2px solid hsl(var(--color-accent-strong));
+  outline-offset: 2px;
+}
+
+/* Sidebar overlay (mobile) */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 30;
+}
+
+/* Primary button styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: white;
+  background-color: hsl(var(--color-accent));
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background-color: hsl(var(--color-accent-strong));
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid hsl(var(--color-accent-strong));
+  outline-offset: 2px;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary button styles */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: hsl(var(--color-text));
+  background-color: transparent;
+  border: 1px solid hsl(var(--color-border));
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  background-color: hsl(var(--color-surface-muted));
+  border-color: hsl(var(--color-border));
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid hsl(var(--color-accent-strong));
+  outline-offset: 2px;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Icon button styles (for hamburger, etc.) */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: hsl(var(--color-text-muted));
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.btn-icon:hover {
+  color: hsl(var(--color-text));
+  background-color: hsl(var(--color-surface-muted));
+}
+
+.btn-icon:focus-visible {
+  outline: 2px solid hsl(var(--color-accent-strong));
+  outline-offset: 2px;
+}

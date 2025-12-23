@@ -26,6 +26,7 @@ import {
 type FeedsSummary = Awaited<ReturnType<typeof getFeeds>>;
 
 interface UseFolderQueueResult {
+  folders: Folder[];
   queue: FolderQueueEntry[];
   activeFolder: FolderQueueEntry | null;
   activeArticles: ArticlePreview[];
@@ -38,6 +39,7 @@ interface UseFolderQueueResult {
   markFolderRead: (folderId: number) => Promise<void>;
   markItemRead: (itemId: number) => Promise<void>;
   skipFolder: (folderId: number) => Promise<void>;
+  selectFolder: (folderId: number) => void;
   restart: () => Promise<void>;
   lastUpdateError: string | null;
 }
@@ -388,7 +390,19 @@ export function useFolderQueue(): UseFolderQueueResult {
     }
   }, []);
 
+  const selectFolder = useCallback((folderId: number) => {
+    setEnvelope((current) => {
+      const nextEnvelope: TimelineCacheEnvelope = {
+        ...current,
+        activeFolderId: folderId,
+      };
+      storeTimelineCache(nextEnvelope);
+      return nextEnvelope;
+    });
+  }, []);
+
   return {
+    folders: foldersData ?? [],
     queue: sortedQueue,
     activeFolder,
     activeArticles,
@@ -401,6 +415,7 @@ export function useFolderQueue(): UseFolderQueueResult {
     markFolderRead,
     markItemRead,
     skipFolder,
+    selectFolder,
     restart,
     lastUpdateError,
   };

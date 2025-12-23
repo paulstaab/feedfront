@@ -24,7 +24,7 @@ export function EmptyState({ type, message, action }: EmptyStateProps) {
         return {
           icon: (
             <svg
-              className="w-16 h-16 text-gray-400"
+              className="w-16 h-16 text-text-subtle"
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
@@ -41,7 +41,7 @@ export function EmptyState({ type, message, action }: EmptyStateProps) {
         return {
           icon: (
             <svg
-              className="w-16 h-16 text-gray-400"
+              className="w-16 h-16 text-text-subtle"
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
@@ -58,7 +58,7 @@ export function EmptyState({ type, message, action }: EmptyStateProps) {
         return {
           icon: (
             <svg
-              className="w-16 h-16 text-gray-400"
+              className="w-16 h-16 text-text-subtle"
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
@@ -75,7 +75,7 @@ export function EmptyState({ type, message, action }: EmptyStateProps) {
         return {
           icon: (
             <svg
-              className="w-16 h-16 text-red-400"
+              className="w-16 h-16 text-error"
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
@@ -92,7 +92,7 @@ export function EmptyState({ type, message, action }: EmptyStateProps) {
         return {
           icon: (
             <svg
-              className="w-16 h-16 text-gray-400"
+              className="w-16 h-16 text-text-subtle"
               fill="none"
               strokeWidth="2"
               stroke="currentColor"
@@ -124,14 +124,14 @@ export function EmptyState({ type, message, action }: EmptyStateProps) {
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {content.icon && <div className="mb-4">{content.icon}</div>}
 
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{content.title}</h3>
+      <h3 className="text-xl font-semibold text-text mb-2">{content.title}</h3>
 
-      <p className="text-gray-600 max-w-md mb-6">{content.description}</p>
+      <p className="text-text-muted max-w-md mb-6">{content.description}</p>
 
       {action && (
         <button
           onClick={action.onClick}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface transition-colors duration-fast"
         >
           {action.label}
         </button>

@@ -1,25 +1,91 @@
 @import './tokens.css';
+@import './sidebar.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: dark light;
+  color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
   background-color: hsl(var(--color-surface));
   color: hsl(var(--color-text));
   min-height: 100vh;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography scale */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: hsl(var(--color-text));
+}
+
+h1 {
+  font-size: var(--font-size-2xl);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+}
+
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-base);
+}
+
+p {
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* Muted text utility */
+.text-muted {
+  color: hsl(var(--color-text-muted));
+}
+
+.text-subtle {
+  color: hsl(var(--color-text-subtle));
+}
+
+/* Captions and small text */
+small,
+.caption {
+  font-size: var(--font-size-sm);
+  color: hsl(var(--color-text-muted));
+}
+
+.text-xs {
+  font-size: var(--font-size-xs);
 }
 
 main {
@@ -31,12 +97,21 @@ main {
 
 a {
   color: hsl(var(--color-accent));
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
+a:hover {
+  color: hsl(var(--color-accent-strong));
+}
+
+/* Focus states */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid hsl(var(--color-accent-strong));
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
