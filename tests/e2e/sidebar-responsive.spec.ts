@@ -67,7 +67,7 @@ test.describe('Sidebar Responsive Behavior (US3)', () => {
 
     // Open sidebar on mobile
     await page.locator('[data-testid="mobile-toggle"]').click();
-    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).toBeVisible();
 
     // Resize to desktop
     await page.setViewportSize({ width: 1024, height: 768 });

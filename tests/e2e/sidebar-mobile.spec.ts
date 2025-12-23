@@ -35,7 +35,7 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
     await completeLogin(page);
 
     // Sidebar should be hidden by default on mobile
-    await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).not.toBeVisible();
 
     // Hamburger button should be visible
     const hamburger = page.locator('[data-testid="mobile-toggle"]');
@@ -45,13 +45,13 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
     await hamburger.click();
 
     // Sidebar should now be visible
-    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).toBeVisible();
 
     // Click hamburger again to close
     await hamburger.click();
 
     // Sidebar should be hidden
-    await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).not.toBeVisible();
   });
 
   test('closes sidebar when tapping outside (overlay)', async ({ page }) => {
@@ -59,7 +59,7 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
 
     // Open sidebar
     await page.locator('[data-testid="mobile-toggle"]').click();
-    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).toBeVisible();
 
     // Wait for animation to complete
     await page.waitForTimeout(300);
@@ -72,7 +72,7 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
     await overlay.dispatchEvent('click');
 
     // Sidebar should close
-    await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).not.toBeVisible();
   });
 
   test('closes sidebar automatically after folder selection', async ({ page }) => {
@@ -80,14 +80,22 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
 
     // Open sidebar
     await page.locator('[data-testid="mobile-toggle"]').click();
-    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).toBeVisible();
 
-    // Click on a folder - use force:true to bypass any overlapping elements during animation
-    const folderItem = page.locator('[data-testid="folder-item"]').first();
-    await folderItem.click({ force: true });
+    // Wait a bit for animation to complete
+    await page.waitForTimeout(500);
+
+    // Click on a different folder (not the first/selected one) to trigger navigation
+    // Use the folder items specifically within the mobile sidebar
+    const mobileSidebar = page.locator('[data-testid="sidebar-mobile"]');
+    const folderItems = mobileSidebar.locator('[data-testid="folder-item"]');
+    const count = await folderItems.count();
+    expect(count).toBeGreaterThan(1); // Ensure we have multiple folders
+    const secondFolder = folderItems.nth(1);
+    await secondFolder.click({ force: true });
 
     // Sidebar should close automatically
-    await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).not.toBeVisible();
 
     // Should still be on timeline page (no full reload)
     await expect(page).toHaveURL(/\/timeline/);
@@ -98,12 +106,12 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
 
     // Open sidebar
     await page.locator('[data-testid="mobile-toggle"]').click();
-    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).toBeVisible();
 
     // Press Escape
     await page.keyboard.press('Escape');
 
     // Sidebar should close
-    await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="sidebar-mobile"]')).not.toBeVisible();
   });
 });

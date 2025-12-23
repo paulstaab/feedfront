@@ -35,7 +35,7 @@ test.describe('Timeline folders (US1)', () => {
 
     await expect(page).toHaveURL(/\/timeline/);
     await expect(page.getByTestId('active-folder-name')).toHaveText(new RegExp(topFolderName, 'i'));
-    await expect(page.getByTestId('active-folder-unread')).toHaveText('3');
+    await expect(page.getByTestId('active-folder-unread')).toHaveText('(3 Unread)');
 
     await expect(page.getByText('Ship It Saturday: Folder Queue')).toBeVisible();
     await expect(page.getByText('Accessibility Improvements Rolling Out')).toBeVisible();
@@ -83,7 +83,7 @@ test.describe('Timeline folders (US1)', () => {
     await expect(page.getByTestId('active-folder-name')).toHaveText(
       new RegExp(firstFolderName, 'i'),
     );
-    await expect(page.getByTestId('active-folder-unread')).toHaveText('3');
+    await expect(page.getByTestId('active-folder-unread')).toHaveText('(3 Unread)');
 
     // Click Mark All as Read button
     await page.getByRole('button', { name: /mark all as read/i }).click();

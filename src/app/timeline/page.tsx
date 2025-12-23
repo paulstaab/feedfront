@@ -154,11 +154,16 @@ function TimelineContent() {
               <div className="flex items-center gap-3">
                 {!isDesktop && <MobileToggle />}
                 <div className="flex items-baseline gap-3">
-                  <h1 className="text-xl sm:text-2xl font-bold text-text">
+                  <h1
+                    className="text-xl sm:text-2xl font-bold text-text"
+                    data-testid={activeFolder ? 'active-folder-name' : undefined}
+                  >
                     {activeFolder?.name ?? 'Timeline'}
                   </h1>
                   {activeFolder && (
-                    <span className="text-text-muted text-sm">({activeFolderUnread} Unread)</span>
+                    <span data-testid="active-folder-unread" className="text-text-muted text-sm">
+                      ({activeFolderUnread} Unread)
+                    </span>
                   )}
                 </div>
               </div>

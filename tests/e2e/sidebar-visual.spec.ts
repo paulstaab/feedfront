@@ -142,7 +142,7 @@ test.describe('Sidebar Visual Design', () => {
       // Wait for animation
       await page.waitForTimeout(300);
 
-      const sidebar = page.getByTestId('sidebar');
+      const sidebar = page.getByTestId('sidebar-mobile');
       await expect(sidebar).toBeVisible();
 
       // Capture sidebar open with overlay
@@ -161,7 +161,7 @@ test.describe('Sidebar Visual Design', () => {
       await page.waitForTimeout(300);
 
       // Capture sidebar with selected folder
-      const sidebar = page.getByTestId('sidebar');
+      const sidebar = page.getByTestId('sidebar-mobile');
       await expect(sidebar).toHaveScreenshot('mobile-sidebar-selected.png', {
         maxDiffPixelRatio: 0.05,
       });
