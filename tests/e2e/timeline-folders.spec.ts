@@ -277,7 +277,6 @@ test.describe('Timeline update and persistence (US5)', () => {
   test('pendingReadIds prevent already-marked articles from reappearing', async ({ page }) => {
     const apiBase = `${TEST_SERVER_URL}/index.php/apps/news/api/v1-3`;
     const markedItemIds: number[] = [];
-    let updateCount = 0;
 
     await page.route(`${apiBase}/items/read/multiple`, async (route) => {
       const postData = route.request().postDataJSON() as { itemIds?: number[] };
@@ -313,5 +312,103 @@ test.describe('Timeline update and persistence (US5)', () => {
     await expect(page.getByTestId('active-folder-name')).toHaveText(
       new RegExp(secondFolderName, 'i'),
     );
+  });
+
+  test('skips a folder and restarts the queue (US3)', async ({ page }) => {
+    await completeLogin(page);
+
+    const firstFolderName = mockFolders[0]?.name ?? 'Engineering Updates';
+    const secondFolderName = mockFolders[1]?.name ?? 'Design Thinking';
+
+    // Verify first folder is active
+    await expect(page.getByTestId('active-folder-name')).toHaveText(
+      new RegExp(firstFolderName, 'i'),
+    );
+
+    // Click Skip button
+    await page.getByRole('button', { name: /skip/i }).click();
+
+    // Verify next folder appears
+    await expect(page.getByTestId('active-folder-name')).toHaveText(
+      new RegExp(secondFolderName, 'i'),
+    );
+
+    // Skip the second folder (assuming only 2 folders in mock)
+    await page.getByRole('button', { name: /skip/i }).click();
+
+    // Verify "All folders viewed" message
+    await expect(page.getByRole('heading', { name: /all folders viewed/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /restart/i })).toBeVisible();
+
+    // Click Restart
+    await page.getByRole('button', { name: /restart/i }).click();
+
+    // Verify first folder is active again
+    await expect(page.getByTestId('active-folder-name')).toHaveText(
+      new RegExp(firstFolderName, 'i'),
+    );
+  });
+
+  test('expands article to show details and marks as read (US4)', async ({ page }) => {
+    const apiBase = `${TEST_SERVER_URL}/index.php/apps/news/api/v1-3`;
+
+    // Mock single item fetch
+    await page.route(`${apiBase}/items?*`, async (route) => {
+      const url = new URL(route.request().url());
+      const id = url.searchParams.get('id');
+
+      if (id) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            items: [
+              {
+                id: Number(id),
+                guid: `guid-${id}`,
+                title: 'Full Article Title',
+                body: '<p>This is the full content of the article.</p>',
+                feedId: 101,
+                unread: true,
+                starred: false,
+                pubDate: 1700000000,
+                lastModified: 1700000000,
+              },
+            ],
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Mock mark read
+    let markReadCalled = false;
+    await page.route(`${apiBase}/items/*/read`, async (route) => {
+      markReadCalled = true;
+      await route.fulfill({ status: 200 });
+    });
+
+    await completeLogin(page);
+
+    // Find an article card
+    const articleCard = page.locator('article').first();
+
+    // Verify summary is visible
+    await expect(articleCard).toContainText('Ship It Saturday'); // From mock data
+
+    // Click to expand
+    await articleCard.click();
+
+    // Verify full content is loaded
+    await expect(articleCard).toContainText('This is the full content of the article.');
+
+    // Verify mark read was called
+    expect(markReadCalled).toBe(true);
+
+    // Verify title is a link
+    const titleLink = articleCard.getByRole('link');
+    await expect(titleLink).toHaveAttribute('target', '_blank');
+    await expect(titleLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 });

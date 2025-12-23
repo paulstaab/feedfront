@@ -8,6 +8,7 @@ interface FolderStepperProps {
   remainingFolders: number;
   onRefresh: () => void;
   onMarkAllRead?: (folderId: number) => Promise<void>;
+  onSkip?: (folderId: number) => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -16,9 +17,11 @@ export function FolderStepper({
   remainingFolders,
   onRefresh,
   onMarkAllRead,
+  onSkip,
   isUpdating,
 }: FolderStepperProps) {
   const [isMarkingRead, setIsMarkingRead] = useState(false);
+  const [isSkipping, setIsSkipping] = useState(false);
   const unreadCount = activeFolder?.unreadCount ?? 0;
   const lastUpdatedLabel = activeFolder
     ? new Date(activeFolder.lastUpdated).toLocaleTimeString([], {
@@ -41,6 +44,19 @@ export function FolderStepper({
       console.error('Failed to mark all as read:', error);
     } finally {
       setIsMarkingRead(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    if (!activeFolder || !onSkip) return;
+
+    setIsSkipping(true);
+    try {
+      await onSkip(activeFolder.id);
+    } catch (error) {
+      console.error('Failed to skip folder:', error);
+    } finally {
+      setIsSkipping(false);
     }
   };
 
@@ -93,6 +109,17 @@ export function FolderStepper({
                 />
               )}
               {isMarkingRead ? 'Marking…' : 'Mark All as Read'}
+            </button>
+          )}
+          {activeFolder && onSkip && (
+            <button
+              onClick={() => {
+                void handleSkip();
+              }}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-70"
+              disabled={isMarkingRead || isSkipping || isUpdating}
+            >
+              {isSkipping ? 'Skipping…' : 'Skip'}
             </button>
           )}
           <button

@@ -94,13 +94,13 @@ Purpose: Core state, types, and hooks that every user story depends on. **All la
 
 ### Tests & Checks (Right-Sized)
 
-- [ ] T028 [P] [US3] Add Vitest coverage in tests/unit/hooks/useFolderQueue.test.ts for skipFolder transitions, queue reordering, and restart behavior.
-- [ ] T029 [P] [US3] Expand Playwright spec to exercise Skip button, verify skipped folder remains unread, and confirm restart CTA resets queue.
+- [X] T028 [P] [US3] Add Vitest coverage in tests/unit/hooks/useFolderQueue.test.ts for skipFolder transitions, queue reordering, and restart behavior.
+- [X] T029 [P] [US3] Expand Playwright spec to exercise Skip button, verify skipped folder remains unread, and confirm restart CTA resets queue.
 
 ### Implementation
 
-- [ ] T030 [US3] Implement skipFolder + restart actions in src/hooks/useFolderQueue.ts updating pendingSkipFolderIds and folder statuses.
-- [ ] T031 [US3] Render Skip + Restart buttons and "all folders viewed" message in src/components/timeline/FolderStepper.tsx and src/components/timeline/EmptyState.tsx.
+- [X] T030 [US3] Implement skipFolder + restart actions in src/hooks/useFolderQueue.ts updating pendingSkipFolderIds and folder statuses.
+- [X] T031 [US3] Render Skip + Restart buttons and "all folders viewed" message in src/components/timeline/FolderStepper.tsx and src/components/timeline/EmptyState.tsx.
 
 ---
 
@@ -112,13 +112,13 @@ Purpose: Core state, types, and hooks that every user story depends on. **All la
 
 ### Tests & Checks (Right-Sized)
 
-- [ ] T032 [P] [US4] Add Vitest tests in tests/unit/components/timeline/ArticleCard.test.tsx verifying expand-to-read behavior and missing data fallbacks.
-- [ ] T033 [P] [US4] Extend Playwright spec to validate inline expansion, external link behavior, and thumbnail/summary visibility.
+- [X] T032 [P] [US4] Add Vitest tests in tests/unit/components/timeline/ArticleCard.test.tsx verifying expand-to-read behavior and missing data fallbacks.
+- [X] T033 [P] [US4] Extend Playwright spec to validate inline expansion, external link behavior, and thumbnail/summary visibility.
 
 ### Implementation
 
-- [ ] T034 [US4] Update src/components/timeline/ArticleCard.tsx to render title link, summary, thumbnail, inline body (when available), and trigger markItemRead on expand.
-- [ ] T035 [US4] Add graceful fallbacks for missing title/summary/thumbnail + keyboard accessibility cues in src/components/timeline/ArticleCard.tsx and related CSS modules (if any).
+- [X] T034 [US4] Update src/components/timeline/ArticleCard.tsx to render title link, summary, thumbnail, inline body (when available), and trigger markItemRead on expand.
+- [X] T035 [US4] Add graceful fallbacks for missing title/summary/thumbnail + keyboard accessibility cues in src/components/timeline/ArticleCard.tsx and related CSS modules (if any).
 
 ---
 
@@ -126,7 +126,7 @@ Purpose: Core state, types, and hooks that every user story depends on. **All la
 
 Purpose: Final documentation, visual regression, and quality gates spanning all stories.
 
-- [ ] T036 [P] Refresh docs/quickstart entries in specs/003-timeline-folder-view/quickstart.md and README.md with final workflow + troubleshooting notes.
+- [X] T036 [P] Refresh docs/quickstart entries in specs/003-timeline-folder-view/quickstart.md and README.md with final workflow + troubleshooting notes.
 - [ ] T037 [P] Capture new Playwright visual baselines (tests/visual/timeline-folders.spec.ts) for folder header, mark-read, skip, update, and all-read states.
 - [ ] T038 Run `npm run lint && npm run test && npx playwright test tests/e2e/timeline-folders.spec.ts` to ensure lint/type/unit/e2e suites pass before release.
 

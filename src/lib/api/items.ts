@@ -60,6 +60,14 @@ export async function getItems(params: ItemsQueryParams = {}): Promise<Article[]
 }
 
 /**
+ * Fetches a single article by ID.
+ */
+export async function getArticle(id: number): Promise<Article | null> {
+  const items = await getItems({ id });
+  return items[0] ?? null;
+}
+
+/**
  * Fetches items modified since a specific timestamp.
  */
 export async function getUpdatedItems(

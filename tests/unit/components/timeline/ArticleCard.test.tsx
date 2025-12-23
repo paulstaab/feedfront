@@ -1,0 +1,126 @@
+import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ArticleCard } from '@/components/timeline/ArticleCard';
+import type { ArticlePreview, Article } from '@/types';
+
+// Mock next/image
+vi.mock('next/image', () => ({
+  // eslint-disable-next-line @next/next/no-img-element
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+}));
+
+// Mock SWR
+const { mockSWRResponse } = vi.hoisted(() => ({
+  mockSWRResponse: {
+    data: undefined as Article | undefined,
+    error: null,
+    isLoading: false,
+  },
+}));
+
+vi.mock('swr', () => ({
+  default: () => mockSWRResponse,
+}));
+
+const mockArticle: ArticlePreview = {
+  id: 1,
+  feedId: 10,
+  folderId: 100,
+  title: 'Test Article Title',
+  summary: 'This is a summary of the article.',
+  url: 'https://example.com/article',
+  thumbnailUrl: 'https://example.com/image.jpg',
+  pubDate: 1700000000,
+  unread: true,
+  starred: false,
+  hasFullText: true,
+  storedAt: 1700000000,
+};
+
+const mockFullArticle: Article = {
+  ...mockArticle,
+  guid: 'guid-1',
+  guidHash: 'hash-1',
+  author: 'Author',
+  body: '<p>This is the full body content.</p>',
+  lastModified: 1700000000,
+  enclosureLink: null,
+  enclosureMime: null,
+  fingerprint: 'fp',
+  contentHash: 'ch',
+  mediaThumbnail: null,
+  mediaDescription: null,
+  rtl: false,
+  folderId: 100,
+};
+
+describe('ArticleCard', () => {
+  it('renders article summary information correctly', () => {
+    render(<ArticleCard article={mockArticle} onMarkRead={vi.fn()} />);
+
+    expect(screen.getByText('Test Article Title')).toBeDefined();
+    expect(screen.getByText('This is a summary of the article.')).toBeDefined();
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://example.com/image.jpg');
+  });
+
+  it('renders fallback title when title is missing', () => {
+    const article = { ...mockArticle, title: '' };
+    render(<ArticleCard article={article} onMarkRead={vi.fn()} />);
+
+    expect(screen.getByText('Untitled article')).toBeDefined();
+  });
+
+  it('does not render thumbnail if url is missing', () => {
+    const article = { ...mockArticle, thumbnailUrl: null };
+    render(<ArticleCard article={article} onMarkRead={vi.fn()} />);
+
+    expect(screen.queryByRole('img')).toBeNull();
+  });
+
+  it('expands to show full content when clicked and marks as read', async () => {
+    const onMarkRead = vi.fn();
+    mockSWRResponse.data = mockFullArticle;
+
+    render(<ArticleCard article={mockArticle} onMarkRead={onMarkRead} />);
+
+    // Initially summary is shown
+    expect(screen.getByText('This is a summary of the article.')).toBeDefined();
+    expect(screen.queryByText('This is the full body content.')).toBeNull();
+
+    // Click to expand
+    const card = screen.getByRole('article');
+    fireEvent.click(card);
+
+    // Should call onMarkRead
+    expect(onMarkRead).toHaveBeenCalledWith(mockArticle.id);
+
+    // Should show full content (mocked SWR returns it)
+    await waitFor(() => {
+      expect(screen.getByText('This is the full body content.')).toBeDefined();
+    });
+  });
+
+  it('shows loading state when expanding and fetching', () => {
+    mockSWRResponse.data = undefined;
+    mockSWRResponse.isLoading = true;
+
+    render(<ArticleCard article={mockArticle} onMarkRead={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('article'));
+
+    expect(screen.getByText(/loading/i)).toBeDefined();
+  });
+
+  it('shows error state when fetch fails', () => {
+    mockSWRResponse.data = undefined;
+    mockSWRResponse.isLoading = false;
+    mockSWRResponse.error = new Error('Failed to load');
+
+    render(<ArticleCard article={mockArticle} onMarkRead={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('article'));
+
+    expect(screen.getByText(/failed to load/i)).toBeDefined();
+  });
+});

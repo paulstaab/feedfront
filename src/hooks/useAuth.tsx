@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (baseUrl: string, username: string, password: string, rememberDevice = false) => {
+    async (baseUrl: string, username: string, password: string, rememberDevice: boolean) => {
       setIsLoading(true);
       setError(null);
 

@@ -7,12 +7,13 @@ interface TimelineListProps {
   items: ArticlePreview[];
   isLoading?: boolean;
   emptyMessage?: string;
+  onMarkRead?: (id: number) => void;
 }
 
 /**
  * Folder-scoped article list with lightweight loading and empty-state handling.
  */
-export function TimelineList({ items, isLoading, emptyMessage }: TimelineListProps) {
+export function TimelineList({ items, isLoading, emptyMessage, onMarkRead }: TimelineListProps) {
   if (isLoading && items.length === 0) {
     return (
       <div className="py-10 text-center">
@@ -35,7 +36,7 @@ export function TimelineList({ items, isLoading, emptyMessage }: TimelineListPro
   return (
     <div className="space-y-4">
       {items.map((article) => (
-        <ArticleCard key={article.id} article={article} />
+        <ArticleCard key={article.id} article={article} onMarkRead={onMarkRead} />
       ))}
     </div>
   );

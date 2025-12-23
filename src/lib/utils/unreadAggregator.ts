@@ -232,15 +232,22 @@ export function groupArticlesByFolder(articles: ArticlePreview[]): Map<number, A
 
 export function sortFolderQueueEntries(entries: FolderQueueEntry[]): FolderQueueEntry[] {
   const sorted = [...entries].sort((a, b) => {
+    // 1. Status: 'skipped' goes to the bottom
+    if (a.status === 'skipped' && b.status !== 'skipped') return 1;
+    if (a.status !== 'skipped' && b.status === 'skipped') return -1;
+
+    // 2. Unread count (descending)
     if (b.unreadCount !== a.unreadCount) {
       return b.unreadCount - a.unreadCount;
     }
 
+    // 3. Name (ascending)
     const nameComparison = folderNameCollator.compare(a.name, b.name);
     if (nameComparison !== 0) {
       return nameComparison;
     }
 
+    // 4. ID (ascending)
     return a.id - b.id;
   });
 

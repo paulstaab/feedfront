@@ -128,7 +128,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 9. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification
-   - Validate that tests pass and coverage meets requirements
+   - Run all linting with `npm run format && npm run lint:fix && npm run typecheck` and check for zero errors
+   - Execute all unit and integration tests with `npm run test:unit && npx playwright test` to ensure 100% pass rate
+   - Confirm documentation is updated as per plan.md
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 

@@ -36,12 +36,13 @@ Playwright tests rely on the same MSW mocks; no external network is required.
 
 ## 5. Manual Smoke Checklist
 
-1. Load the timeline; verify the highest-unread folder appears with newest article on top.
-2. Expand an article card; confirm it disappears from the unread badge and is marked read in API logs.
-3. Click **Mark All as Read**; the next folder should appear instantly.
-4. Click **Skip** on a folder; the next folder loads while skipped one reappears after cycling.
-5. Click **Update**; fresh articles append without losing current unread ones.
-6. After completing all folders, confirm the "You've viewed all folders" screen with restart CTA.
+1. **Folder Ordering**: Load the timeline; verify the highest-unread folder appears with newest article on top.
+2. **Article Details**: Expand an article card; confirm it reveals full text, disappears from the unread badge, and is marked read in API logs.
+3. **Mark All as Read**: Click **Mark All as Read**; the next folder should appear instantly.
+4. **Skip Folder**: Click **Skip** on a folder; the next folder loads while the skipped one is moved to the end of the queue.
+5. **Restart Queue**: After skipping/viewing all folders, confirm the "All folders viewed" screen appears. Click **Restart** to revisit skipped folders.
+6. **Updates**: Click **Update**; fresh articles append without losing current unread ones.
+7. **Offline**: Disconnect network; verify cached articles and folders are still accessible.
 
 ## 6. Troubleshooting
 

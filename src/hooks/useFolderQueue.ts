@@ -5,7 +5,7 @@ import useSWRImmutable from 'swr/immutable';
 import { useItems } from './useItems';
 import { getFolders } from '@/lib/api/folders';
 import { getFeeds } from '@/lib/api/feeds';
-import { markItemsRead } from '@/lib/api/items';
+import { markItemsRead, markItemRead as apiMarkItemRead } from '@/lib/api/items';
 import { deriveFolderProgress, sortFolderQueueEntries } from '@/lib/utils/unreadAggregator';
 import {
   type Article,
@@ -36,6 +36,9 @@ interface UseFolderQueueResult {
   error: Error | null;
   refresh: () => Promise<void>;
   markFolderRead: (folderId: number) => Promise<void>;
+  markItemRead: (itemId: number) => Promise<void>;
+  skipFolder: (folderId: number) => Promise<void>;
+  restart: () => Promise<void>;
   lastUpdateError: string | null;
 }
 
@@ -207,7 +210,8 @@ export function useFolderQueue(): UseFolderQueueResult {
   const markFolderRead = useCallback(
     async (folderId: number) => {
       const folder = envelope.folders[folderId];
-      if (folder === undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!folder) {
         return;
       }
 
@@ -258,6 +262,132 @@ export function useFolderQueue(): UseFolderQueueResult {
     [envelope.folders, refresh],
   );
 
+  const skipFolder = useCallback((folderId: number) => {
+    return new Promise<void>((resolve) => {
+      setEnvelope((current) => {
+        const updatedFolders = { ...current.folders };
+        const folder = updatedFolders[folderId];
+
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (folder) {
+          updatedFolders[folderId] = {
+            ...folder,
+            status: 'skipped',
+          };
+        }
+
+        const remainingQueue = sortFolderQueueEntries(Object.values(updatedFolders));
+        const nextActive = remainingQueue.find((f) => f.status !== 'skipped');
+        const nextActiveId = nextActive ? nextActive.id : null;
+
+        const nextEnvelope: TimelineCacheEnvelope = {
+          ...current,
+          folders: updatedFolders,
+          activeFolderId: nextActiveId,
+          pendingSkipFolderIds: [...current.pendingSkipFolderIds, folderId],
+        };
+
+        storeTimelineCache(nextEnvelope);
+        return nextEnvelope;
+      });
+      resolve();
+    });
+  }, []);
+
+  const restart = useCallback(() => {
+    return new Promise<void>((resolve) => {
+      setEnvelope((current) => {
+        const updatedFolders = { ...current.folders };
+
+        Object.values(updatedFolders).forEach((folder) => {
+          if (folder.status === 'skipped') {
+            updatedFolders[folder.id] = {
+              ...folder,
+              status: 'queued',
+            };
+          }
+        });
+
+        const remainingQueue = sortFolderQueueEntries(Object.values(updatedFolders));
+        const nextActiveId = remainingQueue.length > 0 ? remainingQueue[0].id : null;
+
+        const nextEnvelope: TimelineCacheEnvelope = {
+          ...current,
+          folders: updatedFolders,
+          activeFolderId: nextActiveId,
+          pendingSkipFolderIds: [],
+        };
+
+        storeTimelineCache(nextEnvelope);
+        return nextEnvelope;
+      });
+      resolve();
+    });
+  }, []);
+
+  const markItemRead = useCallback(async (itemId: number) => {
+    // Optimistically update cache
+    setEnvelope((current) => {
+      const updatedFolders = { ...current.folders };
+
+      // Find which folder has this item
+      let targetFolderId: number | null = null;
+      for (const folderIdStr in updatedFolders) {
+        const fid = Number(folderIdStr);
+        const folder = updatedFolders[fid];
+        if (folder.articles.some((a) => a.id === itemId)) {
+          targetFolderId = fid;
+          break;
+        }
+      }
+
+      if (targetFolderId === null) return current;
+
+      const folder = updatedFolders[targetFolderId];
+      const updatedArticles = folder.articles.map((a) =>
+        a.id === itemId ? { ...a, unread: false } : a,
+      );
+
+      // Recompute unread count
+      const unreadCount = updatedArticles.filter((a) => a.unread).length;
+
+      updatedFolders[targetFolderId] = {
+        ...folder,
+        articles: updatedArticles,
+        unreadCount,
+      };
+
+      // Re-sort queue
+      // const remainingQueue = sortFolderQueueEntries(Object.values(updatedFolders));
+
+      const nextEnvelope: TimelineCacheEnvelope = {
+        ...current,
+        folders: updatedFolders,
+        pendingReadIds: [...current.pendingReadIds, itemId],
+      };
+
+      storeTimelineCache(nextEnvelope);
+      return nextEnvelope;
+    });
+
+    try {
+      await apiMarkItemRead(itemId);
+
+      // Remove from pendingReadIds on success
+      setEnvelope((current) => {
+        const nextEnvelope: TimelineCacheEnvelope = {
+          ...current,
+          pendingReadIds: current.pendingReadIds.filter((id) => id !== itemId),
+        };
+        storeTimelineCache(nextEnvelope);
+        return nextEnvelope;
+      });
+    } catch (error) {
+      console.error('Failed to mark item as read:', error);
+      // Keep in pendingReadIds for retry
+    }
+  }, []);
+
   return {
     queue: sortedQueue,
     activeFolder,
@@ -269,6 +399,9 @@ export function useFolderQueue(): UseFolderQueueResult {
     error,
     refresh,
     markFolderRead,
+    markItemRead,
+    skipFolder,
+    restart,
     lastUpdateError,
   };
 }

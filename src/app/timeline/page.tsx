@@ -39,6 +39,9 @@ function TimelineContent() {
     error,
     refresh,
     markFolderRead,
+    markItemRead,
+    skipFolder,
+    restart,
     lastUpdateError,
   } = useFolderQueue();
 
@@ -107,8 +110,16 @@ function TimelineContent() {
   const activeFolderUnread = activeFolder?.unreadCount ?? 0;
   const remainingFolders = progress.remainingFolderIds.length;
 
-  const showEmptyState = totalUnread === 0;
-  const emptyStateType = error ? 'error' : 'no-unread';
+  const showEmptyState = !activeFolder;
+
+  let emptyStateType: 'no-unread' | 'no-items' | 'offline' | 'error' | 'all-viewed' = 'no-unread';
+  if (error) {
+    emptyStateType = 'error';
+  } else if (totalUnread === 0) {
+    emptyStateType = 'no-unread';
+  } else {
+    emptyStateType = 'all-viewed';
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -140,6 +151,7 @@ function TimelineContent() {
             });
           }}
           onMarkAllRead={(folderId) => markFolderRead(folderId)}
+          onSkip={(folderId) => skipFolder(folderId)}
           isUpdating={isUpdating}
         />
 
@@ -154,18 +166,24 @@ function TimelineContent() {
                       void refresh();
                     },
                   }
-                : undefined
+                : emptyStateType === 'all-viewed'
+                  ? {
+                      label: 'Restart',
+                      onClick: () => {
+                        void restart();
+                      },
+                    }
+                  : undefined
             }
           />
         ) : (
           <TimelineList
             items={activeArticles}
             isLoading={isUpdating && activeArticles.length === 0}
-            emptyMessage={
-              activeFolder
-                ? `No unread articles left in ${activeFolder.name}.`
-                : 'No unread articles available.'
-            }
+            emptyMessage={`No unread articles left in ${activeFolder ? activeFolder.name : 'this folder'}.`}
+            onMarkRead={(id) => {
+              void markItemRead(id);
+            }}
           />
         )}
       </main>
