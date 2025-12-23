@@ -3,7 +3,21 @@
 **Feature Branch**: `004-sidebar-design`  
 **Created**: December 23, 2025  
 **Status**: Draft  
-**Input**: User description: "Update the design of the app to follow the design language from the provided image. Add a sidebar that displays queued folders. Hide the sidebar on small screens."
+**Input**: User description: "Update the design of the app to follow the design language from the [provided image](./design_language_mock.png). Add a sidebar that displays queued folders. Hide the sidebar on small screens."
+
+## Clarifications
+
+### Session 2025-12-23
+
+- Q: Folder Ordering in Sidebar → A: Fixed ordering that matches the current folder queue priority
+- Q: Sidebar Visibility for Empty Folders → A: Hide folders with zero unread articles completely
+- Q: Sidebar Width Responsiveness → A: Fixed width at each breakpoint, not user-resizable
+- Q: Hamburger Menu Placement → A: Top-left corner of the header/navigation bar
+- Q: "All" View Behavior with Folder Filtering → A: Don't provide the All option
+- Q: Initial Folder Selection on Page Load → A: First folder with unread articles (in queue priority order)
+- Q: Sidebar Overlay Behavior on Mobile → A: When the sidebar opens on mobile, it slides in over the content and a semi-transparent dimming overlay appears behind it; tapping the dimmed area closes the sidebar.
+- Q: Unread Badge Visual Treatment → A: Circular badge on the right side with white text on primary blue background
+- Q: Behavior when marking all articles in a folder as read → A: After marking all items as read, automatically navigate to the next folder that has unread articles (in queue priority order); do not navigate to a separate "all read" page.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -19,7 +33,7 @@ Users can view all available folders in a permanent sidebar and switch between t
 
 1. **Given** user is viewing the timeline with multiple folders, **When** user clicks on a folder name in the sidebar, **Then** the main content area displays that folder's articles and the folder is highlighted in the sidebar
 2. **Given** user is viewing a folder, **When** user clicks on another folder in the sidebar, **Then** the view switches to the new folder without page reload
-3. **Given** user clicks on "All" in the sidebar, **When** the view loads, **Then** all unread articles from all folders are displayed in chronological order
+3. **Given** user loads the timeline page, **When** page loads, **Then** the first folder with unread articles (in queue priority order) is automatically selected and displayed
 
 ---
 
@@ -33,9 +47,9 @@ Users can see at a glance which folders have unread articles and how many, enabl
 
 **Acceptance Scenarios**:
 
-1. **Given** a folder has unread articles, **When** sidebar is displayed, **Then** the folder shows a badge with the count of unread articles
-2. **Given** user marks all articles in a folder as read, **When** sidebar updates, **Then** the folder's unread count badge is removed or shows "0"
-3. **Given** multiple folders exist, **When** viewing sidebar, **Then** folders are ordered by priority or unread count for easy scanning
+1. **Given** a folder has unread articles, **When** sidebar is displayed, **Then** the folder shows a circular badge on the right side with white text on primary blue background displaying the count of unread articles
+2. **Given** user marks all articles in a folder as read, **When** sidebar updates, **Then** the folder's unread count badge is removed
+3. **Given** multiple folders exist, **When** viewing sidebar, **Then** folders are displayed in the same priority order as the existing folder queue system
 
 ---
 
@@ -49,8 +63,8 @@ Users on mobile devices or small screens can access all folder navigation featur
 
 **Acceptance Scenarios**:
 
-1. **Given** viewport width is below 768px, **When** page loads, **Then** sidebar is hidden by default and a hamburger menu icon is visible
-2. **Given** sidebar is hidden on mobile, **When** user taps the hamburger icon, **Then** sidebar slides in from the left and overlays the content
+1. **Given** viewport width is below 768px, **When** page loads, **Then** sidebar is hidden by default and a hamburger menu icon is visible in the top-left corner of the header
+2. **Given** sidebar is hidden on mobile, **When** user taps the hamburger icon in the top-left, **Then** sidebar slides in from the left and overlays the content without dimming the background
 3. **Given** sidebar is open on mobile, **When** user taps outside the sidebar or on a folder, **Then** sidebar closes automatically
 4. **Given** viewport is resized from mobile to desktop width, **When** resize completes, **Then** sidebar becomes permanently visible without manual toggle
 
@@ -76,19 +90,19 @@ The application adopts a modern, dark-theme design with consistent spacing, typo
 ### Edge Cases
 
 - **Empty folders**: What happens when a folder has no unread articles? Should it still appear in the sidebar or be hidden/grayed out?
-  - *Answer: Empty folders should remain visible in the sidebar but without an unread count badge, allowing users to access read articles if needed*
+  - *Answer: Folders with zero unread articles are hidden from the sidebar completely*
 
 - **Very long folder names**: How does the sidebar handle folders with names exceeding the available width?
   - *Answer: Folder names should truncate with ellipsis and show full name on hover/tooltip*
 
 - **Large number of folders**: How does the sidebar handle users with 20+ folders?
-  - *Answer: Sidebar should become scrollable while keeping navigation controls (All, Settings, About) fixed at top/bottom*
+  - *Answer: Sidebar should become scrollable while keeping navigation controls (Settings, About) fixed at top/bottom*
 
 - **Network errors during folder switch**: What happens when switching folders fails due to connectivity issues?
   - *Answer: Show error message and keep previous folder selected; retry mechanism for failed requests*
 
-- **Sidebar state persistence**: Should the sidebar remember its open/closed state across page reloads on mobile?
-  - *Answer: Yes, use localStorage to remember user preference for sidebar visibility*
+- **Sidebar Overlay Behavior on Mobile**: What happens visually when the sidebar opens on small screens?
+  - *Answer: When the sidebar opens on mobile, it slides in over the content and a semi-transparent dimming overlay appears behind it; tapping the dimmed area closes the sidebar.*
 
 ## Requirements *(mandatory)*
 
@@ -97,18 +111,19 @@ The application adopts a modern, dark-theme design with consistent spacing, typo
 - **FR-001**: System MUST display a vertical sidebar on the left side of the screen containing all available folders
 - **FR-002**: System MUST allow users to click on any folder in the sidebar to navigate directly to that folder's articles
 - **FR-003**: System MUST highlight the currently active folder in the sidebar with a distinct visual treatment
-- **FR-004**: System MUST display an unread count badge next to each folder name showing the number of unread articles
-- **FR-005**: System MUST update unread counts in real-time when articles are marked as read or when new articles arrive
-- **FR-006**: System MUST include an "All" option at the top of the sidebar to view all articles across folders
-- **FR-007**: System MUST hide the sidebar on viewports narrower than 768px and provide a toggle button (hamburger menu)
+- **FR-004**: System MUST automatically select and display the first folder with unread articles (in queue priority order) when the timeline page loads
+- **FR-005**: System MUST display an unread count badge next to each folder name showing the number of unread articles as a circular badge on the right side with white text on primary blue (#3b82f6) background
+- **FR-006**: System MUST update unread counts in real-time when articles are marked as read or when new articles arrive
+- **FR-007**: System MUST hide the sidebar on viewports narrower than 768px and provide a toggle button (hamburger menu) in the top-left corner of the header
 - **FR-008**: System MUST allow users to open/close the sidebar on mobile devices via the hamburger menu
-- **FR-009**: System MUST close the mobile sidebar automatically when user selects a folder or taps outside the sidebar
-- **FR-010**: System MUST preserve the current folder view when marking articles as read
-- **FR-011**: System MUST apply new design tokens including dark theme colors, rounded corners, and consistent spacing to all UI components
-- **FR-012**: System MUST maintain keyboard accessibility for all sidebar navigation actions (Tab, Enter, Escape)
-- **FR-013**: System MUST show tooltips for truncated folder names on hover
-- **FR-014**: System MUST make the sidebar scrollable when folder list exceeds viewport height
-- **FR-015**: System MUST keep navigation controls (All, Settings, About) accessible even when folder list is scrolling
+- **FR-009**: System MUST overlay the sidebar on top of content on mobile with a semi-transparent dimming background overlay that closes the sidebar when tapped
+- **FR-010**: System MUST close the mobile sidebar automatically when user selects a folder or taps outside the sidebar
+- **FR-011**: System MUST preserve the current folder view when marking individual articles as read. When marking all articles in a folder as read and there is another folder with unread articles, it MUST automatically jump to the next folder with unread articles in queue priority order, and it MUST NOT navigate to a separate "all read" page.
+- **FR-012**: System MUST apply new design tokens including dark theme colors, rounded corners, and consistent spacing to all UI components
+- **FR-013**: System MUST maintain keyboard accessibility for all sidebar navigation actions (Tab, Enter, Escape)
+- **FR-014**: System MUST show tooltips for truncated folder names on hover
+- **FR-015**: System MUST make the sidebar scrollable when folder list exceeds viewport height
+- **FR-016**: System MUST keep navigation controls (Settings, About) accessible even when folder list is scrolling
 
 ### Key Entities
 
@@ -129,15 +144,17 @@ The application adopts a modern, dark-theme design with consistent spacing, typo
   - Design tokens will include dark theme palette (background: #1a1a1a, surface: #2d2d2d, primary: #3b82f6, text: #e5e5e5)
   - Spacing scale: 4px base unit (spacing-1 through spacing-6: 4px, 8px, 12px, 16px, 24px, 32px)
   - Typography: System font stack with font sizes 14px (body), 16px (headings), 12px (captions)
-  - Border radius: 8px for cards, 6px for buttons
+  - Border radius: 8px for cards, 6px for buttons, circular (50%) for unread count badges
+  - Unread badges: Circular shape, primary blue (#3b82f6) background, white text, positioned on right side of folder name
   - WCAG 2.1 AA compliance validated via axe DevTools for color contrast (minimum 4.5:1 for normal text) and keyboard navigation tested for all interactive elements
 
 - **Responsive Behavior**: 
   - Breakpoints: Mobile (<768px), Desktop (≥768px)
   - Mobile: Sidebar hidden by default, hamburger menu visible, sidebar overlays content when opened
-  - Desktop: Sidebar permanently visible, takes up ~240px of left side, main content area adjusts
-  - Tablet (768px-1024px): Full sidebar visible but narrower (~200px)
-  - Wide desktop (>1440px): Sidebar remains fixed width, content area expands
+  - Desktop: Sidebar permanently visible, fixed width of 240px on left side, main content area adjusts
+  - Tablet (768px-1024px): Full sidebar visible with fixed width of 200px
+  - Wide desktop (>1440px): Sidebar remains fixed at 240px width, content area expands
+  - Sidebar width is not user-resizable at any breakpoint
 
 - **Visual Regression Proof**: 
   - Playwright visual regression tests will capture screenshots of:
@@ -168,13 +185,11 @@ The application adopts a modern, dark-theme design with consistent spacing, typo
 
 - **SC-001**: Users can navigate to any folder within 1 click (vs current multi-click skip pattern), reducing average folder access time by 70%
 - **SC-002**: Sidebar renders and becomes interactive within 100ms of page load on 3G connection
-- **SC-003**: 95% of users successfully navigate between folders using sidebar on first attempt (measured via analytics)
 - **SC-004**: Visual regression tests pass with 0 unexpected pixel differences in core UI components
 - **SC-005**: Mobile sidebar opens/closes within 200ms with smooth animation (60fps)
 - **SC-006**: All interactive elements in sidebar achieve WCAG 2.1 AA compliance (4.5:1 contrast ratio minimum)
 - **SC-007**: Users can access any folder via keyboard navigation alone (Tab + Enter) within 5 keystrokes
 - **SC-008**: Sidebar remains functional with up to 50 folders without performance degradation (<16ms frame time)
-- **SC-009**: 80% of users report improved navigation experience in post-implementation survey
 - **SC-010**: Page layout does not break or show horizontal scroll on any screen size from 320px to 2560px width
 
 ## Assumptions
