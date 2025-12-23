@@ -14,6 +14,8 @@ export default {
       colors: {
         surface: 'hsl(var(--color-surface) / <alpha-value>)',
         'surface-muted': 'hsl(var(--color-surface-muted) / <alpha-value>)',
+        'bg-surface': 'hsl(var(--color-bg-surface) / <alpha-value>)',
+        'bg-primary': 'hsl(var(--color-bg-primary) / <alpha-value>)',
         accent: 'hsl(var(--color-accent) / <alpha-value>)',
         'accent-strong': 'hsl(var(--color-accent-strong) / <alpha-value>)',
         text: 'hsl(var(--color-text) / <alpha-value>)',

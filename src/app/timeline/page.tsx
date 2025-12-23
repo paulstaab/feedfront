@@ -10,6 +10,8 @@ import { TimelineList } from '@/components/timeline/TimelineList';
 import { MarkAllReadButton } from '@/components/timeline/MarkAllReadButton';
 import { EmptyState } from '@/components/timeline/EmptyState';
 import { RequestStateToast, useToast } from '@/components/ui/RequestStateToast';
+import { Sidebar } from '@/components/Sidebar/Sidebar';
+import { MobileToggle } from '@/components/Sidebar/MobileToggle';
 import {
   markTimelineCacheLoadStart,
   markTimelineCacheReady,
@@ -31,6 +33,8 @@ function TimelineContent() {
   }, []);
 
   const {
+    folders,
+    queue,
     activeFolder,
     activeArticles,
     progress,
@@ -42,6 +46,7 @@ function TimelineContent() {
     markFolderRead,
     markItemRead,
     skipFolder,
+    selectFolder,
     restart,
     lastUpdateError,
   } = useFolderQueue();
@@ -123,78 +128,86 @@ function TimelineContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Timeline</h1>
-
-            {/* Unread summary */}
-            <UnreadSummary
-              totalUnread={totalUnread}
-              activeFolderUnread={activeFolderUnread}
-              remainingFolders={remainingFolders}
-            />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <Sidebar folders={queue} selectedFolderId={activeFolder?.id} onSelectFolder={selectFolder} />
 
       {/* Main content */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <FolderStepper
-          activeFolder={activeFolder}
-          remainingFolders={remainingFolders}
-          onRefresh={() => {
-            markTimelineUpdateStart();
-            void refresh().then(() => {
-              markTimelineUpdateComplete();
-            });
-          }}
-          onSkip={(folderId) => skipFolder(folderId)}
-          isUpdating={isUpdating}
-        />
+      <main className="flex-1 min-w-0">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <MobileToggle />
+                <h1 className="text-2xl font-bold text-gray-900">Timeline</h1>
+              </div>
 
-        {showEmptyState ? (
-          <EmptyState
-            type={emptyStateType}
-            action={
-              emptyStateType === 'error'
-                ? {
-                    label: 'Retry',
-                    onClick: () => {
-                      void refresh();
-                    },
-                  }
-                : emptyStateType === 'all-viewed'
+              {/* Unread summary */}
+              <UnreadSummary
+                totalUnread={totalUnread}
+                activeFolderUnread={activeFolderUnread}
+                remainingFolders={remainingFolders}
+              />
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <FolderStepper
+            activeFolder={activeFolder}
+            remainingFolders={remainingFolders}
+            onRefresh={() => {
+              markTimelineUpdateStart();
+              void refresh().then(() => {
+                markTimelineUpdateComplete();
+              });
+            }}
+            onSkip={(folderId) => skipFolder(folderId)}
+            isUpdating={isUpdating}
+          />
+
+          {showEmptyState ? (
+            <EmptyState
+              type={emptyStateType}
+              action={
+                emptyStateType === 'error'
                   ? {
-                      label: 'Restart',
+                      label: 'Retry',
                       onClick: () => {
-                        void restart();
+                        void refresh();
                       },
                     }
-                  : undefined
-            }
-          />
-        ) : (
-          <TimelineList
-            items={activeArticles}
-            isLoading={isUpdating && activeArticles.length === 0}
-            emptyMessage={`No unread articles left in ${activeFolder.name}.`}
-            onMarkRead={(id) => {
-              void markItemRead(id);
-            }}
-          />
-        )}
-
-        {activeFolder && activeFolderUnread > 0 && (
-          <div className="mt-6 flex justify-end">
-            <MarkAllReadButton
-              onMarkAllRead={() => markFolderRead(activeFolder.id)}
-              disabled={isUpdating}
+                  : emptyStateType === 'all-viewed'
+                    ? {
+                        label: 'Restart',
+                        onClick: () => {
+                          void restart();
+                        },
+                      }
+                    : undefined
+              }
             />
-          </div>
-        )}
+          ) : (
+            <TimelineList
+              items={activeArticles}
+              isLoading={isUpdating && activeArticles.length === 0}
+              emptyMessage={`No unread articles left in ${activeFolder.name}.`}
+              onMarkRead={(id) => {
+                void markItemRead(id);
+              }}
+            />
+          )}
+
+          {activeFolder && activeFolderUnread > 0 && (
+            <div className="mt-6 flex justify-end">
+              <MarkAllReadButton
+                onMarkAllRead={() => markFolderRead(activeFolder.id)}
+                disabled={isUpdating}
+              />
+            </div>
+          )}
+        </div>
       </main>
 
       {/* Toast notifications for errors */}

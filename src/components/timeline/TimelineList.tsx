@@ -34,7 +34,7 @@ export function TimelineList({ items, isLoading, emptyMessage, onMarkRead }: Tim
   }
 
   return (
-    <div className="space-y-4">
+    <div data-testid="article-list" className="space-y-4">
       {items.map((article) => (
         <ArticleCard key={article.id} article={article} onMarkRead={onMarkRead} />
       ))}

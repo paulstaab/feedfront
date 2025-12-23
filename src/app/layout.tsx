@@ -8,6 +8,7 @@ import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { ServiceWorkerRegistration } from '@/components/ui/ServiceWorkerRegistration';
 import { InstallPrompt } from '@/components/ui/InstallPrompt';
 import { SettingsMenu } from '@/components/ui/SettingsMenu';
+import { SidebarProvider } from '@/components/Sidebar/SidebarContext';
 
 export const metadata: Metadata = {
   title: 'Feedfront',
@@ -35,15 +36,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SkipLink href="#main-content">Skip to main content</SkipLink>
         <AuthProvider>
           <SWRProvider>
-            <div className="flex min-h-screen flex-col">
-              {/* Main content area */}
-              <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
-                {children}
-              </main>
-            </div>
-            <OfflineBanner />
-            <InstallPrompt delayMs={3000} showDuringActivity={false} />
-            <SettingsMenu position="top-right" />
+            <SidebarProvider>
+              <div className="flex min-h-screen flex-col">
+                {/* Main content area */}
+                <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
+                  {children}
+                </main>
+              </div>
+              <OfflineBanner />
+              <InstallPrompt delayMs={3000} showDuringActivity={false} />
+              <SettingsMenu position="top-right" />
+            </SidebarProvider>
           </SWRProvider>
         </AuthProvider>
         <ServiceWorkerRegistration />

@@ -47,6 +47,7 @@ export function ArticleCard({ article, onMarkRead }: ArticleCardProps) {
 
   return (
     <div
+      data-testid="article-item"
       className={`bg-white rounded-lg border p-4 transition-all shadow-sm cursor-pointer hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
         article.unread ? 'border-blue-200 border-l-4 border-l-blue-600' : 'border-gray-200'
       }`}

@@ -2,6 +2,8 @@
   /* Color tokens stored as HSL for easy opacity manipulation */
   --color-surface: 220 20% 10%;
   --color-surface-muted: 220 14% 16%;
+  --color-bg-surface: 220 20% 10%;
+  --color-bg-primary: 220 18% 8%;
   --color-accent: 199 89% 48%;
   --color-accent-strong: 199 100% 62%;
   --color-text: 210 40% 98%;
@@ -50,6 +52,8 @@
   :root {
     --color-surface: 214 32% 96%;
     --color-surface-muted: 214 30% 92%;
+    --color-bg-surface: 214 32% 96%;
+    --color-bg-primary: 214 30% 94%;
     --color-accent: 213 94% 34%;
     --color-accent-strong: 210 92% 50%;
     --color-text: 224 33% 12%;

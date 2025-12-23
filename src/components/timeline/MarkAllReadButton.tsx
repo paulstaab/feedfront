@@ -23,6 +23,7 @@ export function MarkAllReadButton({ onMarkAllRead, disabled }: MarkAllReadButton
 
   return (
     <button
+      data-testid="mark-all-read-button"
       onClick={() => {
         void handleClick();
       }}

@@ -24,9 +24,9 @@ description: "Tasks for implementing sidebar navigation and design language upda
 
 **Purpose**: Confirm dependencies and baseline project setup for this feature.
 
-- [ ] T001 Ensure framer-motion dependency is declared in package.json under dependencies for sidebar animations in package.json
-- [ ] T002 Verify Tailwind and PostCSS configs are present and usable for design tokens in tailwind.config.js and postcss.config.js
-- [ ] T003 [P] Run formatting, linting, and typecheck scripts to confirm baseline passes before feature work in package.json scripts (npm run format, npm run lint:fix, npm run typecheck)
+- [X] T001 Ensure framer-motion dependency is declared in package.json under dependencies for sidebar animations in package.json
+- [X] T002 Verify Tailwind and PostCSS configs are present and usable for design tokens in tailwind.config.js and postcss.config.js
+- [X] T003 [P] Run formatting, linting, and typecheck scripts to confirm baseline passes before feature work in package.json scripts (npm run format, npm run lint:fix, npm run typecheck)
 
 ---
 
@@ -36,13 +36,13 @@ description: "Tasks for implementing sidebar navigation and design language upda
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Define shared sidebar types (Folder, SidebarState, FolderFilter) in src/types/sidebar.ts
-- [ ] T005 Create design tokens file for dark theme colors, spacing, and radii, and import it into global styles in src/styles/tokens.css and src/styles/globals.css
-- [ ] T006 Extend Tailwind theme to reference CSS variables for sidebar-related colors (bg-primary, bg-surface, primary, text colors) in tailwind.config.js
-- [ ] T007 Implement SSR-safe sidebar visibility hook using localStorage for mobile open/closed state in src/hooks/useSidebarState.ts
-- [ ] T008 Implement SidebarContext provider exposing isOpen, toggle, and close for mobile sidebar state in src/components/Sidebar/SidebarContext.tsx
-- [ ] T009 Wire SidebarProvider into the root layout so all timeline pages can access sidebar state in src/app/layout.tsx
-- [ ] T010 [P] Ensure existing timeline page exports folder data needed by Sidebar (or can consume it via props/context) in src/app/timeline/page.tsx
+- [X] T004 Define shared sidebar types (Folder, SidebarState, FolderFilter) in src/types/sidebar.ts
+- [X] T005 Create design tokens file for dark theme colors, spacing, and radii, and import it into global styles in src/styles/tokens.css and src/styles/globals.css
+- [X] T006 Extend Tailwind theme to reference CSS variables for sidebar-related colors (bg-primary, bg-surface, primary, text colors) in tailwind.config.js
+- [X] T007 Implement SSR-safe sidebar visibility hook using localStorage for mobile open/closed state in src/hooks/useSidebarState.ts
+- [X] T008 Implement SidebarContext provider exposing isOpen, toggle, and close for mobile sidebar state in src/components/Sidebar/SidebarContext.tsx
+- [X] T009 Wire SidebarProvider into the root layout so all timeline pages can access sidebar state in src/app/layout.tsx
+- [X] T010 [P] Ensure existing timeline page exports folder data needed by Sidebar (or can consume it via props/context) in src/app/timeline/page.tsx
 
 **Checkpoint**: Foundational layer ready—user story implementation can now begin.
 
@@ -56,20 +56,20 @@ description: "Tasks for implementing sidebar navigation and design language upda
 
 ### Tests & Checks for User Story 1 (Right-Sized)
 
-- [ ] T011 [P] [US1] Add unit tests covering initial folder selection logic and folder click navigation in tests/unit/components/Sidebar.navigation.test.tsx
-- [ ] T012 [P] [US1] Add E2E test verifying sidebar-driven folder switching without page reload in tests/e2e/sidebar-navigation.spec.ts
-- [ ] T048 [P] [US1] Add E2E test verifying that marking individual articles as read preserves the current folder view and that marking all articles in a folder as read automatically navigates to the next folder with unread articles (when available) in tests/e2e/sidebar-navigation.spec.ts
+- [X] T011 [P] [US1] Add unit tests covering initial folder selection logic and folder click navigation in tests/unit/components/Sidebar.navigation.test.tsx
+- [X] T012 [P] [US1] Add E2E test verifying sidebar-driven folder switching without page reload in tests/e2e/sidebar-navigation.spec.ts
+- [X] T048 [P] [US1] Add E2E test verifying that marking individual articles as read preserves the current folder view and that marking all articles in a folder as read automatically navigates to the next folder with unread articles (when available) in tests/e2e/sidebar-navigation.spec.ts
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Create Sidebar container component that renders navigation structure and accepts folders and selectedFolderId props in src/components/Sidebar/Sidebar.tsx
-- [ ] T014 [P] [US1] Implement FolderList component that renders a vertical list of folders and delegates selection to a callback in src/components/Sidebar/FolderList.tsx
-- [ ] T015 [P] [US1] Implement FolderItem component that displays folder name and selected styling, and invokes onClick with folder id in src/components/Sidebar/FolderItem.tsx
-- [ ] T016 [US1] Apply client-side filtering to only pass folders with unreadCount > 0 into FolderList in src/components/Sidebar/Sidebar.tsx
-- [ ] T017 [US1] Wire Sidebar into the timeline layout so selecting a folder updates the visible articles without full page reload in src/app/timeline/page.tsx
-- [ ] T018 [US1] Ensure Sidebar highlights the active folder based on current route or selectedFolderId in src/components/Sidebar/FolderItem.tsx
-- [ ] T019 [US1] Make Sidebar scrollable when folder list exceeds viewport height while keeping any fixed navigation controls accessible in src/components/Sidebar/Sidebar.tsx
-- [ ] T049 [US1] Implement mark-as-read behavior so individual mark-read actions do not change the selected folder, and a mark-all-read action navigates to the next folder with unread articles (if any) without showing a separate all-read page in src/app/timeline/page.tsx
+- [X] T013 [US1] Create Sidebar container component that renders navigation structure and accepts folders and selectedFolderId props in src/components/Sidebar/Sidebar.tsx
+- [X] T014 [P] [US1] Implement FolderList component that renders a vertical list of folders and delegates selection to a callback in src/components/Sidebar/FolderList.tsx
+- [X] T015 [P] [US1] Implement FolderItem component that displays folder name and selected styling, and invokes onClick with folder id in src/components/Sidebar/FolderItem.tsx
+- [X] T016 [US1] Apply client-side filtering to only pass folders with unreadCount > 0 into FolderList in src/components/Sidebar/Sidebar.tsx
+- [X] T017 [US1] Wire Sidebar into the timeline layout so selecting a folder updates the visible articles without full page reload in src/app/timeline/page.tsx
+- [X] T018 [US1] Ensure Sidebar highlights the active folder based on current route or selectedFolderId in src/components/Sidebar/FolderItem.tsx
+- [X] T019 [US1] Make Sidebar scrollable when folder list exceeds viewport height while keeping any fixed navigation controls accessible in src/components/Sidebar/Sidebar.tsx
+- [X] T049 [US1] Implement mark-as-read behavior so individual mark-read actions do not change the selected folder, and a mark-all-read action navigates to the next folder with unread articles (if any) without showing a separate all-read page in src/app/timeline/page.tsx
 
 **Checkpoint**: User Story 1 fully functional and testable independently (desktop navigation only).
 
