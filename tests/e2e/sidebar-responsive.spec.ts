@@ -1,22 +1,10 @@
-import { type Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { setupApiMocks } from './mocks';
+import { ensureLoggedIn } from './auth';
 
 const TEST_SERVER_URL = 'https://rss.example.com';
 const TEST_USERNAME = 'testuser';
 const TEST_PASSWORD = 'testpass';
-
-async function completeLogin(page: Page) {
-  await page.goto('/login/');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-  await page.getByRole('button', { name: /^continue$/i }).click();
-  await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10_000 });
-  await page.getByLabel(/username/i).fill(TEST_USERNAME);
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: /log.*in|sign.*in/i }).click();
-  await page.waitForURL(/\/timeline/, { timeout: 10_000 });
-}
 
 test.describe('Sidebar Responsive Behavior (US3)', () => {
   test.beforeEach(async ({ page }) => {
@@ -33,7 +21,11 @@ test.describe('Sidebar Responsive Behavior (US3)', () => {
     // Set desktop viewport
     await page.setViewportSize({ width: 1024, height: 768 });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Sidebar should be visible
     await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
@@ -46,7 +38,11 @@ test.describe('Sidebar Responsive Behavior (US3)', () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Sidebar should be hidden
     await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
@@ -59,7 +55,11 @@ test.describe('Sidebar Responsive Behavior (US3)', () => {
     // Start on mobile
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Sidebar hidden, hamburger visible
     await expect(page.locator('[data-testid="sidebar"]')).not.toBeVisible();
@@ -83,7 +83,11 @@ test.describe('Sidebar Responsive Behavior (US3)', () => {
     // Start on desktop
     await page.setViewportSize({ width: 1024, height: 768 });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Sidebar visible, hamburger hidden
     await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
@@ -103,7 +107,16 @@ test.describe('Sidebar Responsive Behavior (US3)', () => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
+
+    // Wait for sidebar to load and folders to render
+    await page.waitForSelector('[data-testid="sidebar"]', { timeout: 15000 });
+    await page.waitForSelector('[data-testid="folder-item"]', { timeout: 15000 });
+    await page.waitForTimeout(1000); // Let data hydrate
 
     // Sidebar should be visible
     await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();

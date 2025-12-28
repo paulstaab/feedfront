@@ -1,5 +1,6 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { setupApiMocks } from '../e2e/mocks';
+import { ensureLoggedIn } from '../e2e/auth';
 
 const TEST_SERVER_URL = 'https://rss.example.com';
 const TEST_USERNAME = 'testuser';
@@ -10,18 +11,6 @@ const BREAKPOINTS = [
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'desktop', width: 1024, height: 768 },
 ];
-
-async function completeLogin(page: Page) {
-  await page.goto('/login/');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-  await page.getByRole('button', { name: /^continue$/i }).click();
-  await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10_000 });
-  await page.getByLabel(/username/i).fill(TEST_USERNAME);
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: /log.*in|sign.*in/i }).click();
-  await page.waitForURL(/\/timeline/, { timeout: 10_000 });
-}
 
 test.describe('Visual: Timeline Folders', () => {
   test.beforeEach(async ({ page }) => {
@@ -39,7 +28,11 @@ test.describe('Visual: Timeline Folders', () => {
       page,
     }) => {
       await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });
-      await completeLogin(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
 
       // 1. Default Folder View (Header, Mark Read, Skip, Articles)
       await expect(page.getByTestId('active-folder-name')).toBeVisible();
@@ -66,7 +59,11 @@ test.describe('Visual: Timeline Folders', () => {
     });
 
     await page.setViewportSize({ width: 375, height: 667 }); // Mobile view for this state
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     await expect(page.getByRole('heading', { name: 'All caught up!' })).toBeVisible();
 

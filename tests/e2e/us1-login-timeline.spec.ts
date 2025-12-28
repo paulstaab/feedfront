@@ -24,8 +24,8 @@ test.describe('US1: Login and Timeline', () => {
     await setupApiMocks(page, TEST_SERVER_URL);
 
     // Clear storage before each test - navigate and wait for redirect to complete
-    await page.goto('/');
-    await page.waitForURL(/\/login\//);
+    // Navigate to the login page first, then clear storage on the app origin
+    await page.goto('/login/');
     await page.waitForLoadState('domcontentloaded');
     await page.evaluate(() => {
       sessionStorage.clear();

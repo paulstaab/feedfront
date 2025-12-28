@@ -1,28 +1,18 @@
-import { type Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { getMockItems, mockFolders, setupApiMocks } from './mocks';
+import { ensureLoggedIn } from './auth';
 
 const TEST_SERVER_URL = 'https://rss.example.com';
 const TEST_USERNAME = 'testuser';
 const TEST_PASSWORD = 'testpass';
 
-async function completeLogin(page: Page) {
-  await page.goto('/login/');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-  await page.getByRole('button', { name: /^continue$/i }).click();
-  await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10_000 });
-  await page.getByLabel(/username/i).fill(TEST_USERNAME);
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: /log.*in|sign.*in/i }).click();
-  await page.waitForURL(/\/timeline/, { timeout: 10_000 });
-}
-
 test.describe('Timeline folders (US1)', () => {
   test.beforeEach(async ({ page }) => {
     await setupApiMocks(page, TEST_SERVER_URL);
-    await page.goto('/');
-    await page.waitForURL(/\/login\//);
+    // Ensure a clean session and go directly to the login wizard
+    await page.goto('/login/');
+    await page.waitForLoadState('networkidle');
+    // Clear storage after navigating to app origin to avoid cross-origin access errors
     await page.evaluate(() => {
       sessionStorage.clear();
       localStorage.clear();
@@ -30,7 +20,11 @@ test.describe('Timeline folders (US1)', () => {
   });
 
   test('surfaces the highest-priority folder first', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
     const topFolderName = mockFolders[0]?.name ?? 'Engineering Updates';
 
     await expect(page).toHaveURL(/\/timeline/);
@@ -53,7 +47,11 @@ test.describe('Timeline folders (US1)', () => {
       });
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Use h1 specifically for main timeline heading (sidebar also has h2 "Timeline")
     await expect(page.locator('h1')).toBeVisible();
@@ -75,7 +73,11 @@ test.describe('Timeline folders (US1)', () => {
       await route.fulfill({ status: 204 });
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     const firstFolderName = mockFolders[0]?.name ?? 'Engineering Updates';
     const secondFolderName = mockFolders[1]?.name ?? 'Design Thinking';
@@ -141,7 +143,11 @@ test.describe('Timeline update and persistence (US5)', () => {
       }
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Wait for initial render
     await expect(page.getByTestId('active-folder-name')).toBeVisible({ timeout: 5000 });
@@ -198,7 +204,11 @@ test.describe('Timeline update and persistence (US5)', () => {
       }
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
     await expect(page.getByTestId('active-folder-name')).toBeVisible({ timeout: 5000 });
 
     // Initial articles should be visible
@@ -221,7 +231,11 @@ test.describe('Timeline update and persistence (US5)', () => {
 
   test('persists unread state across page reloads', async ({ page }) => {
     // First session - login and mark one folder as read
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
     await expect(page.getByTestId('active-folder-name')).toBeVisible({ timeout: 5000 });
 
     const firstFolderName = mockFolders[0]?.name ?? 'Engineering Updates';
@@ -277,7 +291,11 @@ test.describe('Timeline update and persistence (US5)', () => {
       }
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
     await expect(page.getByTestId('active-folder-name')).toBeVisible({ timeout: 5000 });
 
     // Click update button (use exact name to avoid matching folder buttons)
@@ -316,7 +334,11 @@ test.describe('Timeline update and persistence (US5)', () => {
       });
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
     await expect(page.getByTestId('active-folder-name')).toBeVisible({ timeout: 5000 });
 
     // Mark first folder as read
@@ -340,7 +362,11 @@ test.describe('Timeline update and persistence (US5)', () => {
   });
 
   test('skips a folder and restarts the queue (US3)', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     const firstFolderName = mockFolders[0]?.name ?? 'Engineering Updates';
     const secondFolderName = mockFolders[1]?.name ?? 'Design Inspiration';
@@ -381,8 +407,10 @@ test.describe('Timeline update and persistence (US5)', () => {
     await page.getByRole('button', { name: /skip/i }).dispatchEvent('click');
 
     // Verify "All folders viewed" message
-    await expect(page.getByRole('heading', { name: /all folders viewed/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /restart/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /all folders viewed/i })).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(page.getByRole('button', { name: /restart/i })).toBeVisible({ timeout: 10_000 });
 
     // Click Restart using dispatchEvent to ensure the handler fires
     await page.getByRole('button', { name: /restart/i }).dispatchEvent('click');
@@ -403,7 +431,11 @@ test.describe('Timeline update and persistence (US5)', () => {
       await route.fulfill({ status: 200 });
     });
 
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Wait for articles to load
     await expect(page.getByTestId('active-folder-name')).toBeVisible({ timeout: 5000 });

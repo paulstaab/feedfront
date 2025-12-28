@@ -44,4 +44,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
+  // Run global setup to create a storageState file with an authenticated session
+  globalSetup: require.resolve('./tests/e2e/global-setup'),
 });

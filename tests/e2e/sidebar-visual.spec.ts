@@ -1,5 +1,6 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { setupApiMocks } from './mocks';
+import { ensureLoggedIn } from './auth';
 
 /**
  * Visual regression tests for sidebar design language.
@@ -10,25 +11,7 @@ const TEST_SERVER_URL = 'https://rss.example.com';
 const TEST_USERNAME = 'testuser';
 const TEST_PASSWORD = 'testpass';
 
-async function loginUser(page: Page) {
-  await page.goto('/login/');
-  await page.evaluate(() => {
-    sessionStorage.clear();
-    localStorage.clear();
-  });
-  await page.waitForLoadState('domcontentloaded');
-
-  await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-  await page.getByRole('button', { name: /^continue$/i }).click();
-  await page.waitForSelector('input[id="username"]');
-
-  await page.getByLabel(/username/i).fill(TEST_USERNAME);
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: /login|sign in/i }).click();
-
-  await page.waitForURL(/\/timeline/);
-  await page.waitForLoadState('networkidle');
-}
+// Use global setup / storage state via `ensureLoggedIn` helper
 
 test.describe('Sidebar Visual Design', () => {
   test.beforeEach(async ({ page }) => {
@@ -39,7 +22,11 @@ test.describe('Sidebar Visual Design', () => {
     test.use({ viewport: { width: 1440, height: 900 } });
 
     test('sidebar default state matches design', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="sidebar"]');
 
       // Wait for animations to complete
@@ -53,7 +40,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('sidebar with selected folder matches design', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="sidebar"]');
 
       // Click on a folder to select it
@@ -71,7 +62,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('folder item hover state matches design', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="sidebar"]');
 
       // Hover over an unselected folder
@@ -88,7 +83,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('timeline with sidebar layout matches design', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="sidebar"]');
       await page.waitForTimeout(500);
 
@@ -104,7 +103,11 @@ test.describe('Sidebar Visual Design', () => {
     test.use({ viewport: { width: 375, height: 812 } });
 
     test('sidebar open state on mobile', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
 
       // Open sidebar
       const mobileToggle = page.getByTestId('mobile-toggle');
@@ -124,7 +127,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('mobile sidebar with folder selection', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
 
       // Open sidebar
       const mobileToggle = page.getByTestId('mobile-toggle');
@@ -143,7 +150,11 @@ test.describe('Sidebar Visual Design', () => {
     test.use({ viewport: { width: 1440, height: 900 } });
 
     test('article cards use dark theme tokens', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="article-list"]', { timeout: 10000 });
 
       // Capture article list with dark theme
@@ -154,7 +165,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('folder stepper uses dark theme tokens', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
 
       // Capture folder stepper/header area
       const header = page.locator('header').first();
@@ -164,7 +179,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('buttons use consistent styling', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="article-list"]', { timeout: 10000 });
 
       // Find and capture primary button
@@ -181,7 +200,11 @@ test.describe('Sidebar Visual Design', () => {
     test.use({ viewport: { width: 1440, height: 900 } });
 
     test('headings use correct typography', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
 
       // Capture main heading
       const mainHeading = page.locator('h1').first();
@@ -191,7 +214,11 @@ test.describe('Sidebar Visual Design', () => {
     });
 
     test('sidebar heading uses correct typography', async ({ page }) => {
-      await loginUser(page);
+      await ensureLoggedIn(page, {
+        serverUrl: TEST_SERVER_URL,
+        username: TEST_USERNAME,
+        password: TEST_PASSWORD,
+      });
       await page.waitForSelector('[data-testid="sidebar"]');
 
       const sidebarHeading = page.getByTestId('sidebar').locator('h2');

@@ -1,22 +1,10 @@
-import { type Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { setupApiMocks } from './mocks';
+import { ensureLoggedIn } from './auth';
 
 const TEST_SERVER_URL = 'https://rss.example.com';
 const TEST_USERNAME = 'testuser';
 const TEST_PASSWORD = 'testpass';
-
-async function completeLogin(page: Page) {
-  await page.goto('/login/');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-  await page.getByRole('button', { name: /^continue$/i }).click();
-  await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10_000 });
-  await page.getByLabel(/username/i).fill(TEST_USERNAME);
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: /log.*in|sign.*in/i }).click();
-  await page.waitForURL(/\/timeline/, { timeout: 10_000 });
-}
 
 test.describe('Sidebar Mobile Behavior (US3)', () => {
   test.beforeEach(async ({ page }) => {
@@ -32,7 +20,11 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
   });
 
   test('opens and closes sidebar with hamburger button', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Sidebar should be hidden by default on mobile
     await expect(page.locator('[data-testid="sidebar-mobile"]')).not.toBeVisible();
@@ -55,7 +47,11 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
   });
 
   test('closes sidebar when tapping outside (overlay)', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Open sidebar
     await page.locator('[data-testid="mobile-toggle"]').click();
@@ -76,7 +72,11 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
   });
 
   test('closes sidebar automatically after folder selection', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Open sidebar
     await page.locator('[data-testid="mobile-toggle"]').click();
@@ -102,7 +102,11 @@ test.describe('Sidebar Mobile Behavior (US3)', () => {
   });
 
   test('closes sidebar with Escape key', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Open sidebar
     await page.locator('[data-testid="mobile-toggle"]').click();

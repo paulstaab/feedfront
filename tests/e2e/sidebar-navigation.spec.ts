@@ -1,28 +1,17 @@
-import { type Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 import { setupApiMocks } from './mocks';
+import { ensureLoggedIn } from './auth';
 
 const TEST_SERVER_URL = 'https://rss.example.com';
 const TEST_USERNAME = 'testuser';
 const TEST_PASSWORD = 'testpass';
 
-async function completeLogin(page: Page) {
-  await page.goto('/login/');
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel(/server url/i).fill(TEST_SERVER_URL);
-  await page.getByRole('button', { name: /^continue$/i }).click();
-  await expect(page.getByLabel(/username/i)).toBeVisible({ timeout: 10_000 });
-  await page.getByLabel(/username/i).fill(TEST_USERNAME);
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD);
-  await page.getByRole('button', { name: /log.*in|sign.*in/i }).click();
-  await page.waitForURL(/\/timeline/, { timeout: 10_000 });
-}
-
 test.describe('Sidebar Navigation (US1)', () => {
   test.beforeEach(async ({ page }) => {
     await setupApiMocks(page, TEST_SERVER_URL);
-    await page.goto('/');
-    await page.waitForURL(/\/login\//);
+    // Navigate to login first, then clear storage on the app origin to avoid cross-origin access issues
+    await page.goto('/login/');
+    await page.waitForLoadState('domcontentloaded');
     await page.evaluate(() => {
       sessionStorage.clear();
       localStorage.clear();
@@ -30,16 +19,11 @@ test.describe('Sidebar Navigation (US1)', () => {
   });
 
   test('switches between folders without page reload', async ({ page }) => {
-    await completeLogin(page);
-
-    // Wait for sidebar to load
-    await page.waitForSelector('[data-testid="sidebar"]');
-
-    // Wait for folder items to be rendered
-    await page.waitForSelector('[data-testid="folder-item"]', { timeout: 15000 });
-
-    //Wait for data to hydrate
-    await page.waitForTimeout(1000);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Check initial folder is selected (first with unread)
     const firstFolder = page.locator('[data-testid="folder-item"]').first();
@@ -62,7 +46,11 @@ test.describe('Sidebar Navigation (US1)', () => {
   });
 
   test('automatically selects first folder with unread articles on load', async ({ page }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     // Wait for sidebar
     await page.waitForSelector('[data-testid="sidebar"]');
@@ -85,7 +73,11 @@ test.describe('Sidebar Navigation (US1)', () => {
   test('preserves current folder view when marking individual articles as read', async ({
     page,
   }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     await page.waitForSelector('[data-testid="sidebar"]');
 
@@ -116,7 +108,11 @@ test.describe('Sidebar Navigation (US1)', () => {
   test('navigates to next folder when marking all articles in current folder as read', async ({
     page,
   }) => {
-    await completeLogin(page);
+    await ensureLoggedIn(page, {
+      serverUrl: TEST_SERVER_URL,
+      username: TEST_USERNAME,
+      password: TEST_PASSWORD,
+    });
 
     await page.waitForSelector('[data-testid="sidebar"]');
 
