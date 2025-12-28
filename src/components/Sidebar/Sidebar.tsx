@@ -56,10 +56,10 @@ export function Sidebar({ folders, selectedFolderId, onSelectFolder }: SidebarPr
 
   return (
     <>
-      {/* Desktop Sidebar - always visible via CSS media query */}
+      {/* Desktop Sidebar - hidden by default, visible at md+ (matches Tailwind md breakpoint) */}
       <aside
         data-testid="sidebar"
-        className="desktop-sidebar"
+        className="desktop-sidebar hidden md:flex"
         role="navigation"
         aria-label="Folder navigation"
       >
@@ -89,7 +89,7 @@ export function Sidebar({ folders, selectedFolderId, onSelectFolder }: SidebarPr
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
               onClick={close}
               aria-hidden="true"
             />
@@ -101,7 +101,7 @@ export function Sidebar({ folders, selectedFolderId, onSelectFolder }: SidebarPr
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="fixed left-0 top-0 h-full w-64 z-50 sm:hidden"
+              className="fixed left-0 top-0 h-full w-64 z-50 md:hidden"
               style={{ backgroundColor: 'hsl(220, 20%, 24%)' }}
               role="navigation"
               aria-label="Folder navigation"
