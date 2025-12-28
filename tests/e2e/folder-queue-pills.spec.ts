@@ -66,10 +66,10 @@ test.describe('Folder queue pills', () => {
 
     await page.getByRole('button', { name: /mark all as read/i }).click();
 
-    await expect(page.getByTestId('folder-pill-10')).toHaveCount(0);
     await expect(page.getByTestId('active-folder-name')).toHaveText(
       new RegExp(mockFolders[1]?.name ?? 'Design Inspiration', 'i'),
     );
+    await expect(page.getByTestId('folder-pill-10')).toHaveCount(0);
   });
 
   test('skip moves the active folder pill to the end', async ({ page }) => {
