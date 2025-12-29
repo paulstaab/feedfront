@@ -135,6 +135,7 @@ export {
   createEmptyTimelineCache,
   loadTimelineCache,
   mergeItemsIntoCache,
+  reconcileTimelineCache,
   pruneTimelineCache,
   storeTimelineCache,
 } from './storage/timelineCache';

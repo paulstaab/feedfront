@@ -5,7 +5,7 @@
  * Provides access to app settings including manual PWA install.
  */
 
-import { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { triggerInstallPrompt, canPromptInstall } from '@/lib/pwa/installPrompt';
 
 export interface SettingsMenuProps {
@@ -28,7 +28,7 @@ export function SettingsMenu({ position = 'top-right', className = '' }: Setting
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Check if install is available
-  useLayoutEffect(() => {
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowInstallOption(canPromptInstall());
   }, []);

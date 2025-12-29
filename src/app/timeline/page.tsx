@@ -38,6 +38,7 @@ function TimelineContent() {
     totalUnread,
     isHydrated,
     isUpdating,
+    isRefreshing,
     error,
     refresh,
     setActiveFolder,
@@ -155,11 +156,15 @@ function TimelineContent() {
           remainingFolders={remainingFolders}
           onRefresh={() => {
             markTimelineUpdateStart();
-            void refresh().then(() => {
-              markTimelineUpdateComplete();
-            });
+            void refresh()
+              .then(() => {
+                markTimelineUpdateComplete();
+              })
+              .catch(() => {
+                markTimelineUpdateComplete();
+              });
           }}
-          isUpdating={isUpdating}
+          isRefreshing={isRefreshing}
         />
 
         {showEmptyState ? (

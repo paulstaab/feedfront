@@ -6,14 +6,14 @@ interface FolderStepperProps {
   activeFolder: FolderQueueEntry | null;
   remainingFolders: number;
   onRefresh: () => void;
-  isUpdating: boolean;
+  isRefreshing: boolean;
 }
 
 export function FolderStepper({
   activeFolder,
   remainingFolders,
   onRefresh,
-  isUpdating,
+  isRefreshing,
 }: FolderStepperProps) {
   const unreadCount = activeFolder?.unreadCount ?? 0;
   const lastUpdatedLabel = activeFolder
@@ -64,15 +64,15 @@ export function FolderStepper({
           <button
             onClick={onRefresh}
             className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-70"
-            disabled={isUpdating}
+            disabled={isRefreshing}
           >
-            {isUpdating && (
+            {isRefreshing && (
               <span
                 className="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"
                 aria-hidden
               />
             )}
-            {isUpdating ? 'Refreshing…' : 'Refresh'}
+            {isRefreshing ? 'Refreshing…' : 'Refresh'}
           </button>
         </div>
       </div>
