@@ -4,6 +4,7 @@ import type { Article, Folder, Feed, ArticlePreview, FolderQueueEntry } from '@/
 import { useFolderQueue } from '@/hooks/useFolderQueue';
 import { CONFIG } from '@/lib/config/env';
 import { createEmptyTimelineCache } from '@/lib/storage';
+import { getItems } from '@/lib/api/items';
 
 // Mock SWR immutable hook to return deterministic folder/feed payloads
 const mocks = vi.hoisted(() => ({
@@ -46,6 +47,7 @@ vi.mock('@/lib/api/feeds', () => ({
 }));
 
 vi.mock('@/lib/api/items', () => ({
+  getItems: vi.fn().mockResolvedValue([]),
   markItemsRead: vi.fn().mockResolvedValue(undefined),
   markItemRead: vi.fn().mockResolvedValue(undefined),
 }));
@@ -199,6 +201,9 @@ describe('useFolderQueue', () => {
     setItems([
       buildArticle({ id: 1, feedId: 1, folderId: 10, title: 'Dev A' }),
       buildArticle({ id: 2, feedId: 1, folderId: 10, title: 'Dev B' }),
+      buildArticle({ id: 3, feedId: 2, folderId: 20, title: 'Design A' }),
+    ]);
+    vi.mocked(getItems).mockResolvedValue([
       buildArticle({ id: 3, feedId: 2, folderId: 20, title: 'Design A' }),
     ]);
 
