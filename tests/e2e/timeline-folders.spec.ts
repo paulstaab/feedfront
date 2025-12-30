@@ -442,7 +442,8 @@ test.describe('Timeline update and persistence (US5)', () => {
     // Verify mark read was called
     expect(markReadCalled).toBe(true);
 
-    // Verify the read item is removed from the unread-only timeline
-    await expect(page.getByRole('article').filter({ hasText: titleText })).toHaveCount(0);
+    // Verify the read item remains visible until the next sync reconciliation
+    await expect(targetCard).toHaveAttribute('aria-label', /read/i);
+    await expect(page.getByRole('article').filter({ hasText: titleText })).toHaveCount(1);
   });
 });
