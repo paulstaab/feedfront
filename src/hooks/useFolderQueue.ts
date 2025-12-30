@@ -248,12 +248,16 @@ export function useFolderQueue(): UseFolderQueueResult {
   const hasLocalUnread = useMemo(() => {
     return Object.values(envelope.folders).some((entry) => entry.unreadCount > 0);
   }, [envelope.folders]);
+  const hasLocalArticles = useMemo(() => {
+    const hasArticles = Object.values(envelope.folders).some((entry) => entry.articles.length > 0);
+    return hasArticles || envelope.pendingReadIds.length > 0;
+  }, [envelope.folders, envelope.pendingReadIds.length]);
 
   // Refresh with error handling (retry logic handled at page level)
   const refresh = useCallback(async (): Promise<void> => {
     setIsSyncing(true);
     try {
-      if (!hasLocalUnread) {
+      if (!hasLocalUnread && !hasLocalArticles) {
         await swrRefresh();
         setLastUpdateError(null);
         return;
@@ -298,7 +302,7 @@ export function useFolderQueue(): UseFolderQueueResult {
     } finally {
       setIsSyncing(false);
     }
-  }, [feedFolderMap, feedNameMap, foldersData, hasLocalUnread, swrRefresh]);
+  }, [feedFolderMap, feedNameMap, foldersData, hasLocalArticles, hasLocalUnread, swrRefresh]);
 
   useEffect(() => {
     if (!foldersData || isLoading) return;
