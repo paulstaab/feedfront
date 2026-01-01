@@ -44,7 +44,7 @@ export function createEmptyTimelineCache(): TimelineCacheEnvelope {
 function normalizeEnvelope(
   envelope: Partial<TimelineCacheEnvelope> | null | undefined,
 ): TimelineCacheEnvelope {
-  if (!envelope || envelope.version !== CONFIG.TIMELINE_CACHE_VERSION) {
+  if (envelope?.version !== CONFIG.TIMELINE_CACHE_VERSION) {
     return createEmptyTimelineCache();
   }
 
